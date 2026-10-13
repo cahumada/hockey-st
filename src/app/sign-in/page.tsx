@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { redirectSignedInToDashboard } from "@/lib/require-access";
@@ -14,7 +15,7 @@ async function signInWithGoogle() {
   await signIn("google", { redirectTo: "/dashboard" });
 }
 
-export default async function SignInPage() {
+async function SignInScreen() {
   await redirectSignedInToDashboard();
 
   return (
@@ -37,5 +38,13 @@ export default async function SignInPage() {
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<p className="w-full px-4 py-8">Cargando…</p>}>
+      <SignInScreen />
+    </Suspense>
   );
 }

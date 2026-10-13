@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { redirectSignedInToDashboard } from "@/lib/require-access";
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export default async function HomePage() {
+async function HomeScreen() {
   await redirectSignedInToDashboard();
 
   return (
@@ -34,5 +35,13 @@ export default async function HomePage() {
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<p className="w-full px-4 py-8">Cargando…</p>}>
+      <HomeScreen />
+    </Suspense>
   );
 }
