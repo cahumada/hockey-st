@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMINISTRATOR
+  COORDINATOR
+  COLLABORATOR
+  PLAYER
+  PARENT
+  VISITOR
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String?
+  email         String?        @unique
+  emailVerified DateTime?
+  image         String?
+  // New users default to visitor. Google is not a role source.
+  role          Role           @default(VISITOR)
+  accounts      Account[]
+  sessions      Session[]
+  playerProfile Player?
+  parentLinks   ParentPlayer[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Player {
+  id         String         @id @default(cuid())
+  givenName  String
+  familyName String
+  userId     String?        @unique
+  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  parents    ParentPlayer[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model ParentPlayer {
+  parentUserId String
+  playerId     String
+  parent       User     @relation(fields: [parentUserId], references: [id], onDelete: Cascade)
+  player       Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+
+  @@id([parentUserId, playerId])
+}
