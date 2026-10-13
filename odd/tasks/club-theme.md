@@ -51,4 +51,4 @@ No component test runner exists, and these changes are CSS plus layout. A RED te
 
 ## Progress
 
-T1–T4 are done. Served CSS on port 3005: light `--primary` `#0f4285`, celeste stripe `#03a8e3`, dark `--primary` `#41b8ef` on `#08162a`. `/`, `/sign-in`, and `/brand/san-telmo-crest.webp` return 200. Unauthenticated `/account` redirects to `/sign-in` after `await io()` in `requireSession`. The operator approved the signed-in toggle and drawer. Work-unit commit identity is recorded after the commit.
+T1–T4 are done. Served CSS on port 3005: light `--primary` `#0f4285`, celeste stripe `#03a8e3`, dark `--primary` `#41b8ef` on `#08162a`. `/`, `/sign-in`, and `/brand/san-telmo-crest.webp` return 200. Unauthenticated `/account` redirects to `/sign-in` after `await io()` in `requireSession`. The operator approved the signed-in toggle and drawer. Work-unit commit: `15b2f16f6501f57224704800ec1d3ee09bb383e9` on `feat/club-theme`.
