@@ -21,13 +21,13 @@ async function AccountPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Account</h1>
+          <h1>Perfil</h1>
         </CardTitle>
-        <CardDescription>Your role is {roleLabels[role]}.</CardDescription>
+        <CardDescription>Tu rol es {roleLabels[role]}.</CardDescription>
       </CardHeader>
       <CardContent>
         {links.length === 0 ? (
-          <p>No additional tools are available for this role.</p>
+          <p>No hay otras herramientas para este rol.</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {links.map((link) => (
@@ -49,7 +49,7 @@ async function AccountPanel() {
 
 export default function AccountPage() {
   return (
-    <Suspense fallback={<p>Loading account…</p>}>
+    <Suspense fallback={<p>Cargando el perfil…</p>}>
       <AccountPanel />
     </Suspense>
   );

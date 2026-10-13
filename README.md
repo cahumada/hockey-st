@@ -4,7 +4,7 @@ Mobile-first web app for Club Atlético San Telmo hockey. Google sign-in opens a
 
 ## Scripts
 
-- `pnpm dev` starts the development server.
+- `pnpm dev` starts the development server on port 3005.
 - `pnpm test` runs the access and Google profile tests.
 - `pnpm build` creates the production build.
 

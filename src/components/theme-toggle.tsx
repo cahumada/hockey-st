@@ -23,7 +23,7 @@ export function ThemeToggle() {
       type="button"
       variant="outline"
       className="min-h-11 min-w-11 px-0"
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-label={isDark ? "Usar tema claro" : "Usar tema oscuro"}
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       {mounted ? (

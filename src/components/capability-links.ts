@@ -5,11 +5,12 @@ export const capabilityLinks: {
   href: string;
   label: string;
 }[] = [
-  { capability: "club-dashboard", href: "/dashboard", label: "Dashboard" },
-  { capability: "register-movements", href: "/movements", label: "Movements" },
+  { capability: "club-dashboard", href: "/dashboard", label: "Panel" },
+  { capability: "register-movements", href: "/movements", label: "Movimientos" },
   { capability: "assign-roles", href: "/roles", label: "Roles" },
-  { capability: "club-report", href: "/reports/club", label: "Club report" },
-  { capability: "parent-report", href: "/reports/parents", label: "Parent report" },
+  { capability: "manage-roster", href: "/players", label: "Jugadoras" },
+  { capability: "club-report", href: "/reports/club", label: "Informe del club" },
+  { capability: "parent-report", href: "/reports/parents", label: "Informe de familias" },
 ];
 
 export function linksForRole(role: Role) {
@@ -17,10 +18,10 @@ export function linksForRole(role: Role) {
 }
 
 export const roleLabels: Record<Role, string> = {
-  ADMINISTRATOR: "Administrator",
-  COORDINATOR: "Coordinator",
-  COLLABORATOR: "Collaborator",
-  PLAYER: "Player",
-  PARENT: "Parent",
-  VISITOR: "Visitor",
+  ADMINISTRATOR: "Administrador",
+  COORDINATOR: "Coordinador",
+  COLLABORATOR: "Colaborador",
+  PLAYER: "Jugadora",
+  PARENT: "Familia",
+  VISITOR: "Visitante",
 };

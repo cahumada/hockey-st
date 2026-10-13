@@ -95,4 +95,4 @@ F3–F5 are done. Auth.js `next-auth@5.0.0-beta.32` with `@auth/prisma-adapter@2
 
 ## Next step
 
-Share the Google Sheet before modeling income and expense categories. Apply the init migration only after a Postgres instance exists.
+The jugadoras load is tracked in `odd/tasks/player-roster.md`. Income and expense categories still wait for an explicit finance slice.

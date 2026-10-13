@@ -14,14 +14,14 @@ async function ParentReportPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Parent report</h1>
+          <h1>Informe de familias</h1>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p>
           {access.scope === "linked"
-            ? "This report includes only players linked to this account."
-            : "This report includes every group."}
+            ? "Este informe incluye solo a las jugadoras vinculadas a esta cuenta."
+            : "Este informe incluye a todos los grupos."}
         </p>
       </CardContent>
     </Card>
@@ -30,7 +30,7 @@ async function ParentReportPanel() {
 
 export default function ParentReportPage() {
   return (
-    <Suspense fallback={<p>Loading parent report…</p>}>
+    <Suspense fallback={<p>Cargando el informe de familias…</p>}>
       <ParentReportPanel />
     </Suspense>
   );

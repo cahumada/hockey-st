@@ -14,14 +14,14 @@ async function DashboardPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Club dashboard</h1>
+          <h1>Panel</h1>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p>
           {access.scope === "own"
-            ? "This view is limited to the collaborator's own activity."
-            : "Club-wide figures arrive with the finance module."}
+            ? "Esta vista se limita a tu actividad."
+            : "Las cifras del club llegan con el módulo de finanzas."}
         </p>
       </CardContent>
     </Card>
@@ -30,7 +30,7 @@ async function DashboardPanel() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<p>Loading dashboard…</p>}>
+    <Suspense fallback={<p>Cargando el panel…</p>}>
       <DashboardPanel />
     </Suspense>
   );

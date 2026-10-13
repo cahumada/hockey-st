@@ -14,11 +14,11 @@ async function ClubReportPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Club report</h1>
+          <h1>Informe del club</h1>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p>The club management report is not available yet.</p>
+        <p>El informe de gestión del club todavía no está disponible.</p>
       </CardContent>
     </Card>
   );
@@ -26,7 +26,7 @@ async function ClubReportPanel() {
 
 export default function ClubReportPage() {
   return (
-    <Suspense fallback={<p>Loading club report…</p>}>
+    <Suspense fallback={<p>Cargando el informe del club…</p>}>
       <ClubReportPanel />
     </Suspense>
   );

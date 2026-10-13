@@ -7,8 +7,14 @@ import {
   type Capability,
   type Role,
 } from "@/lib/access";
+import { entryPathForUser } from "@/lib/authenticated-entry";
 
-export async function requireSession(): Promise<{ userId: string; role: Role }> {
+export async function requireSession(): Promise<{
+  userId: string;
+  role: Role;
+  name: string | null;
+  image: string | null;
+}> {
   // Auth draws a nonce during prerender. Suspend so the session check runs per request.
   await io();
   const session = await auth();
@@ -19,7 +25,23 @@ export async function requireSession(): Promise<{ userId: string; role: Role }> 
     redirect("/sign-in");
   }
 
-  return { userId, role };
+  return {
+    userId,
+    role,
+    name: session.user.name ?? null,
+    image: session.user.image ?? null,
+  };
+}
+
+export async function redirectSignedInToDashboard(): Promise<void> {
+  // Auth draws a nonce during prerender. Suspend so the session check runs per request.
+  await io();
+  const session = await auth();
+  const entryPath = entryPathForUser(session?.user?.id);
+
+  if (entryPath !== null) {
+    redirect(entryPath);
+  }
 }
 
 export async function requireAccess(capability: Capability): Promise<{

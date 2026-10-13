@@ -14,13 +14,12 @@ async function RolesPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Assign roles</h1>
+          <h1>Asignar roles</h1>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p>
-          An administrator assigns roles here. New Google accounts stay visitors
-          until assigned.
+          Un administrador asigna los roles acá. Las cuentas nuevas de Google quedan como visitantes hasta que se asignan.
         </p>
       </CardContent>
     </Card>
@@ -29,7 +28,7 @@ async function RolesPanel() {
 
 export default function RolesPage() {
   return (
-    <Suspense fallback={<p>Loading roles…</p>}>
+    <Suspense fallback={<p>Cargando roles…</p>}>
       <RolesPanel />
     </Suspense>
   );

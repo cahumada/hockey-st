@@ -8,6 +8,7 @@ const capabilities: Capability[] = [
   "assign-roles",
   "club-report",
   "parent-report",
+  "manage-roster",
 ];
 
 test("administrator can open every club capability at full scope", () => {
@@ -31,6 +32,10 @@ test("administrator can open every club capability at full scope", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("ADMINISTRATOR", "manage-roster"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("coordinator can operate the club but cannot assign roles", () => {
@@ -51,6 +56,10 @@ test("coordinator can operate the club but cannot assign roles", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("COORDINATOR", "manage-roster"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("collaborator registers movements and sees only their own dashboard", () => {
@@ -62,26 +71,35 @@ test("collaborator registers movements and sees only their own dashboard", () =>
     allowed: true,
     scope: "all",
   });
-  for (const capability of ["assign-roles", "club-report", "parent-report"] as const) {
+  for (const capability of ["assign-roles", "club-report", "parent-report", "manage-roster"] as const) {
     assert.equal(accessFor("COLLABORATOR", capability).allowed, false);
   }
 });
 
-test("player and visitor cannot open club or parent-report routes", () => {
+test("player and visitor can open only their own club dashboard", () => {
   for (const role of ["PLAYER", "VISITOR"] as const) {
+    assert.deepEqual(accessFor(role, "club-dashboard"), {
+      allowed: true,
+      scope: "own",
+    });
     for (const capability of capabilities) {
+      if (capability === "club-dashboard") continue;
       assert.deepEqual(accessFor(role, capability), { allowed: false });
     }
   }
 });
 
-test("parent tutor can open only the linked parent report", () => {
+test("parent tutor can open the linked parent report and their own club dashboard", () => {
   assert.deepEqual(accessFor("PARENT", "parent-report"), {
     allowed: true,
     scope: "linked",
   });
+  assert.deepEqual(accessFor("PARENT", "club-dashboard"), {
+    allowed: true,
+    scope: "own",
+  });
   for (const capability of capabilities) {
-    if (capability === "parent-report") continue;
+    if (capability === "parent-report" || capability === "club-dashboard") continue;
     assert.equal(accessFor("PARENT", capability).allowed, false);
   }
 });

@@ -13,18 +13,24 @@ async function signOutAction() {
 export function ClubShell({
   children,
   role,
+  name,
+  image,
 }: {
   children: ReactNode;
   role: Role;
+  name: string | null;
+  image: string | null;
 }) {
   return (
     <ClubFrame
       links={linksForRole(role)}
       roleLabel={roleLabels[role]}
+      name={name}
+      image={image}
       signOut={
         <form action={signOutAction}>
-          <Button type="submit" variant="outline" className="min-h-11 px-4">
-            Sign out
+          <Button type="submit" variant="ghost" className="min-h-11 w-full justify-start px-3">
+            Cerrar sesión
           </Button>
         </form>
       }

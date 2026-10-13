@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3005",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/access.test.ts src/lib/google-profile.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/access.test.ts src/lib/google-profile.test.ts src/lib/legacy-roster.test.ts src/lib/roster.test.ts src/lib/authenticated-entry.test.ts src/lib/profile-label.test.ts",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
+    "db:seed": "prisma db seed",
     "postinstall": "prisma generate"
   },
   "dependencies": {

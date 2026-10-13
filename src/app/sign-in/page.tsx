@@ -1,5 +1,6 @@
 import { signIn } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { redirectSignedInToDashboard } from "@/lib/require-access";
 import {
   Card,
   CardContent,
@@ -10,25 +11,27 @@ import {
 
 async function signInWithGoogle() {
   "use server";
-  await signIn("google", { redirectTo: "/account" });
+  await signIn("google", { redirectTo: "/dashboard" });
 }
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  await redirectSignedInToDashboard();
+
   return (
     <main className="w-full px-4 py-8">
       <Card>
         <CardHeader>
           <CardTitle>
-            <h1>Sign in</h1>
+            <h1>Ingresar</h1>
           </CardTitle>
           <CardDescription>
-            Use your Google account for Club Atlético San Telmo hockey.
+            Usá tu cuenta de Google para el hockey del Club Atlético San Telmo.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form action={signInWithGoogle}>
             <Button type="submit" className="min-h-11 w-full px-4">
-              Sign in with Google
+              Ingresar con Google
             </Button>
           </form>
         </CardContent>

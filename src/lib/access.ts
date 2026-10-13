@@ -7,7 +7,8 @@ export type Capability =
   | "register-movements"
   | "assign-roles"
   | "club-report"
-  | "parent-report";
+  | "parent-report"
+  | "manage-roster";
 
 export type AccessScope = "all" | "own" | "linked";
 
@@ -46,6 +47,8 @@ export function accessFor(role: Role, capability: Capability): AccessDecision {
   if (role === "PARENT" && capability === "parent-report") {
     return allow("linked");
   }
+
+  if (capability === "club-dashboard") return allow("own");
 
   return denied;
 }

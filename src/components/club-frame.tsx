@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { ProfileMenu } from "@/components/profile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "cn";
@@ -40,11 +41,15 @@ function Crest({ alt }: { alt: string }) {
 export function ClubFrame({
   links,
   roleLabel,
+  name,
+  image,
   signOut,
   children,
 }: {
   links: { href: string; label: string }[];
   roleLabel: string;
+  name: string | null;
+  image: string | null;
   signOut: ReactNode;
   children: ReactNode;
 }) {
@@ -55,7 +60,6 @@ export function ClubFrame({
   const mounted = useSyncExternalStore(subscribeMounted, () => true, () => false);
   const isDesktop = useSyncExternalStore(subscribeDesktop, desktopSnapshot, () => false);
   const drawer = open && !isDesktop;
-  const navLinks = [{ href: "/account", label: "Account" }, ...links];
 
   useEffect(() => {
     const media = window.matchMedia(desktopQuery);
@@ -122,14 +126,14 @@ export function ClubFrame({
         <button
           type="button"
           className="fixed inset-0 z-40 bg-black/40"
-          aria-label="Close menu"
+          aria-label="Cerrar menú"
           onClick={() => setOpen(false)}
         />
       ) : null}
       <nav
         ref={sidebarRef}
         id="club-sidebar"
-        aria-label="Account"
+        aria-label="Menú"
         role={drawer ? "dialog" : undefined}
         aria-modal={drawer ? true : undefined}
         tabIndex={drawer ? -1 : undefined}
@@ -148,7 +152,7 @@ export function ClubFrame({
           </div>
         </div>
         <ul className="flex flex-col">
-          {navLinks.map((link) => {
+          {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
               <li key={link.href}>
@@ -180,7 +184,7 @@ export function ClubFrame({
                 type="button"
                 variant="outline"
                 className="min-h-11 min-w-11 px-0 md:hidden"
-                aria-label={open ? "Close menu" : "Open menu"}
+                aria-label={open ? "Cerrar menú" : "Abrir menú"}
                 aria-expanded={open}
                 aria-controls="club-sidebar"
                 onClick={() => setOpen((current) => !current)}
@@ -194,7 +198,7 @@ export function ClubFrame({
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <ThemeToggle />
-              {signOut}
+              <ProfileMenu name={name} image={image} signOut={signOut} />
             </div>
           </div>
         </header>

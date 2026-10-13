@@ -64,15 +64,42 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Category {
+  code        String   @id
+  description String
+  active      Boolean  @default(true)
+  players     Player[]
+}
+
+enum RosterStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RosterInactiveReason {
+  TEMPORARY
+  INJURY
+  PERMANENT
+}
+
 model Player {
-  id         String         @id @default(cuid())
-  givenName  String
-  familyName String
-  userId     String?        @unique
-  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
-  parents    ParentPlayer[]
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  legacyId        Int            @unique
+  // Sheet column "Nombre y Apellido", stored exactly. The file does not split names.
+  displayName     String
+  givenName       String?
+  familyName      String?
+  categoryCode    String
+  category        Category       @relation(fields: [categoryCode], references: [code])
+  rosterStatus    RosterStatus
+  // Null while an imported Baja has no reason yet.
+  statusReason    RosterInactiveReason?
+  statusChangedOn DateTime?      @db.Date
+  userId          String?        @unique
+  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  parents         ParentPlayer[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
 
 model ParentPlayer {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { redirectSignedInToDashboard } from "@/lib/require-access";
 import {
   Card,
   CardContent,
@@ -9,7 +10,9 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-export default function HomePage() {
+export default async function HomePage() {
+  await redirectSignedInToDashboard();
+
   return (
     <main className="w-full px-4 py-8">
       <Card>
@@ -18,8 +21,7 @@ export default function HomePage() {
             <h1>Club Atlético San Telmo hockey</h1>
           </CardTitle>
           <CardDescription>
-            Sign in with Google to open your account. New accounts stay visitors
-            until an administrator assigns a role.
+            Ingresá con Google para abrir tu cuenta. Las cuentas nuevas quedan como visitantes hasta que un administrador asigna un rol.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -27,7 +29,7 @@ export default function HomePage() {
             href="/sign-in"
             className={cn(buttonVariants(), "min-h-11 px-4")}
           >
-            Sign in
+            Ingresar
           </Link>
         </CardContent>
       </Card>

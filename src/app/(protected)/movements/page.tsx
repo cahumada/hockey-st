@@ -14,13 +14,12 @@ async function MovementsPanel() {
     <Card>
       <CardHeader>
         <CardTitle>
-          <h1>Register movements</h1>
+          <h1>Registrar movimientos</h1>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <p>
-          Registration is not available yet. Categories will come from the club
-          spreadsheet.
+          El registro todavía no está disponible. Las categorías van a salir de la planilla del club.
         </p>
       </CardContent>
     </Card>
@@ -29,7 +28,7 @@ async function MovementsPanel() {
 
 export default function MovementsPage() {
   return (
-    <Suspense fallback={<p>Loading movements…</p>}>
+    <Suspense fallback={<p>Cargando movimientos…</p>}>
       <MovementsPanel />
     </Suspense>
   );
