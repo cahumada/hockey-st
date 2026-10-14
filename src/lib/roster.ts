@@ -69,7 +69,7 @@ export function parsePlayerProfile(
   const displayName = input.displayName.trim();
 
   if (displayName.length === 0) {
-    errors.displayName = "Ingresá el nombre que se muestra de esta jugadora.";
+    errors.displayName = "Ingresá el alias de esta jugadora.";
   } else if (displayName.length > DISPLAY_NAME_MAX) {
     errors.displayName = `Usá ${DISPLAY_NAME_MAX} caracteres o menos.`;
   }
