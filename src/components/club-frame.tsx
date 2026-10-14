@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { ProfileMenu } from "@/components/profile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "cn";
 
 const desktopQuery = "(min-width: 768px)";
@@ -29,7 +30,7 @@ function subscribeMounted() {
 function Crest({ alt }: { alt: string }) {
   return (
     <Image
-      src="/brand/san-telmo-crest.webp"
+      src="/brand/san-telmo-crest.png"
       alt={alt}
       width={40}
       height={48}
@@ -121,7 +122,7 @@ export function ClubFrame({
   }, [drawer]);
 
   return (
-    <div className="flex min-h-dvh w-full bg-background">
+    <div className="flex h-dvh min-h-0 w-full overflow-hidden bg-background">
       {drawer ? (
         <button
           type="button"
@@ -139,7 +140,7 @@ export function ClubFrame({
         tabIndex={drawer ? -1 : undefined}
         inert={mounted && !isDesktop && !open ? true : undefined}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-72 max-w-[85vw] flex-col overflow-y-auto border-r bg-sidebar text-sidebar-foreground shadow-lg transition",
+          "fixed inset-y-0 left-0 z-50 flex h-dvh w-72 max-w-[85vw] flex-col overflow-hidden border-r bg-sidebar text-sidebar-foreground shadow-lg transition",
           open ? "translate-x-0" : "-translate-x-full",
           "md:static md:z-auto md:w-64 md:max-w-none md:translate-x-0 md:shadow-none",
         )}
@@ -151,31 +152,33 @@ export function ClubFrame({
             <p className="text-sm text-muted-foreground">{roleLabel}</p>
           </div>
         </div>
-        <ul className="flex flex-col">
-          {links.map((link) => {
-            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "flex min-h-11 items-center border-l-2 px-3 text-sm font-medium",
-                    active
-                      ? "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "border-transparent text-sidebar-foreground",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <ScrollArea className="min-h-0 flex-1">
+          <ul className="flex flex-col pb-4">
+            {links.map((link) => {
+              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex min-h-11 items-center border-l-2 px-3 text-sm font-medium",
+                      active
+                        ? "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "border-transparent text-sidebar-foreground",
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </ScrollArea>
       </nav>
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 bg-background pt-[env(safe-area-inset-top)]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="z-30 shrink-0 bg-background pt-[env(safe-area-inset-top)]">
           <div aria-hidden="true" className="h-[3px] w-full bg-[oklch(0.688_0.141_232.6)]" />
           <div className="flex h-14 items-center justify-between border-b bg-background/95 px-3 backdrop-blur">
             <div className="flex min-w-0 items-center gap-2">
@@ -202,7 +205,9 @@ export function ClubFrame({
             </div>
           </div>
         </header>
-        <main className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</main>
+        <ScrollArea className="min-h-0 flex-1">
+          <main className="min-w-0 px-4 py-6 md:px-8">{children}</main>
+        </ScrollArea>
       </div>
     </div>
   );

@@ -97,6 +97,14 @@ model Player {
   statusChangedOn DateTime?      @db.Date
   userId          String?        @unique
   user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Private Vercel Blob pathname. Null until a roster manager uploads a photo.
+  avatarPath      String?
+  birthDate       DateTime?      @db.Date
+  membershipNumber String?
+  jerseyNumber    Int?
+  // AES-256-GCM ciphertext for the national id. Never expose decrypted values to the client.
+  dniCiphertext   String?        @db.Text
+  joinedOn        DateTime?      @db.Date
   parents         ParentPlayer[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt

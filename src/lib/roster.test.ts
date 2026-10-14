@@ -49,7 +49,7 @@ test("profile edit rejects a blank display name and an unknown category", () => 
 
   assert.equal(parsed.ok, false);
   if (!parsed.ok) {
-    assert.equal(parsed.errors.displayName, "Ingresá el nombre que se muestra de esta jugadora.");
+    assert.equal(parsed.errors.displayName, "Ingresá el alias de esta jugadora.");
     assert.equal(parsed.errors.categoryCode, "Elegí una categoría.");
     assert.equal(parsed.errors.givenName, undefined);
   }
