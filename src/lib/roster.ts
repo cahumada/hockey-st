@@ -205,6 +205,14 @@ function optionalName(
   return trimmed.length === 0 ? null : trimmed;
 }
 
+export function formatCategoryLabel(category: { code: string; description: string }): string {
+  return `${category.code} · ${category.description}`;
+}
+
+export function sortCategories<T extends { code: string }>(categories: readonly T[]): T[] {
+  return [...categories].sort((left, right) => compareCategoryCodes(left.code, right.code));
+}
+
 function compareCategoryCodes(left: string, right: string): number {
   return categoryRank(left) - categoryRank(right) || left.localeCompare(right, "es");
 }

@@ -2,12 +2,14 @@
 
 import { useEffect } from "react";
 import {
+  Controller,
   useForm,
   type FieldErrors,
   type Resolver,
   type UseFormRegisterReturn,
   type UseFormReturn,
 } from "react-hook-form";
+import { CategorySelect } from "@/components/category-select";
 import type { PlayerFormErrors } from "@/app/(protected)/players/actions";
 import type { RosterCategory } from "@/lib/roster";
 import {
@@ -122,6 +124,7 @@ export function PlayerProfileFormFields({
 }) {
   const {
     register,
+    control,
     formState: { errors },
   } = form;
 
@@ -148,22 +151,24 @@ export function PlayerProfileFormFields({
           registration={register("familyName")}
         />
       </div>
-      <label className="flex flex-col gap-1" htmlFor="modal-categoryCode">
-        Categoría
-        <select
-          id="modal-categoryCode"
-          className={cn(fieldClass, errors.categoryCode && "border-destructive")}
-          aria-invalid={errors.categoryCode ? true : undefined}
-          {...register("categoryCode", { required: true })}
-        >
-          {categories.map((category) => (
-            <option key={category.code} value={category.code}>
-              {category.code} · {category.description}
-            </option>
-          ))}
-        </select>
-        <FieldError message={errors.categoryCode?.message} />
-      </label>
+      <Controller
+        name="categoryCode"
+        control={control}
+        render={({ field }) => (
+          <>
+            <CategorySelect
+              id="modal-categoryCode"
+              name={field.name}
+              categories={categories}
+              value={field.value}
+              invalid={Boolean(errors.categoryCode)}
+              onBlur={field.onBlur}
+              onValueChange={(next) => field.onChange(next)}
+            />
+            <FieldError message={errors.categoryCode?.message} />
+          </>
+        )}
+      />
 
       <fieldset className="flex flex-col gap-3 rounded-xl border border-border/70 p-4">
         <legend className="px-1 text-sm font-medium">Datos opcionales</legend>

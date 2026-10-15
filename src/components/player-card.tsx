@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Archive, Camera, Pencil, UserMinus } from "lucide-react";
 import { PlayerJerseyDorsal } from "@/components/player-jersey-dorsal";
+import { rosterStatusTone, StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import type { RosterInactiveReason, RosterStatus } from "@/lib/roster";
 import { cn } from "cn";
@@ -229,14 +230,9 @@ function StatusPill({ player }: { player: PlayerCardData }) {
   const inactive = player.rosterStatus === "INACTIVE";
 
   return (
-    <span
-      className={cn(
-        "inline-flex w-fit max-w-full items-center rounded-full px-2 py-0.5 text-xs font-medium",
-        inactive ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary",
-      )}
-    >
+    <StatusBadge tone={rosterStatusTone(player.rosterStatus, player.statusReason)}>
       {inactive ? "Inactiva" : "Activa"}
       {inactive && player.statusReason ? ` · ${reasonLabels[player.statusReason]}` : ""}
-    </span>
+    </StatusBadge>
   );
 }

@@ -6,6 +6,13 @@ import { RotateCcw, UserMinus, X } from "lucide-react";
 import { changeRosterStatus, type RosterActionState } from "@/app/(protected)/players/actions";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { rosterInactiveReasons, type RosterInactiveReason, type RosterStatus } from "@/lib/roster";
 import { cn } from "cn";
 
@@ -25,9 +32,6 @@ const reasonLabels: Record<RosterInactiveReason, string> = {
   INJURY: "Lesión",
   PERMANENT: "Permanente",
 };
-
-const fieldClass =
-  "h-11 w-full rounded-lg border border-input bg-background px-3 text-sm";
 
 export function PlayerRosterStatusModal({
   open,
@@ -133,19 +137,26 @@ export function PlayerRosterStatusModal({
         <input ref={intentRef} type="hidden" name="intent" defaultValue="deactivate" />
         <label className="flex flex-col gap-1" htmlFor="status-reason">
           Motivo de baja
-          <select
-            id="status-reason"
+          <Select
             name="reason"
             defaultValue={player.statusReason ?? "TEMPORARY"}
-            className={fieldClass}
             disabled={statusPending}
+            items={rosterInactiveReasons.map((reason) => ({
+              value: reason,
+              label: reasonLabels[reason],
+            }))}
           >
-            {rosterInactiveReasons.map((reason) => (
-              <option key={reason} value={reason}>
-                {reasonLabels[reason]}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="status-reason" className="h-11 w-full data-[size=default]:h-11">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {rosterInactiveReasons.map((reason) => (
+                <SelectItem key={reason} value={reason}>
+                  {reasonLabels[reason]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </label>
         <ActionNote state={statusState} />
       </form>

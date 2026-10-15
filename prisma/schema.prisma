@@ -43,17 +43,18 @@ model Session {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
+  id                  String         @id @default(cuid())
+  name                String?
+  email               String?        @unique
+  emailVerified       DateTime?
+  image               String?
   // New users default to visitor. Google is not a role source.
-  role          Role           @default(VISITOR)
-  accounts      Account[]
-  sessions      Session[]
-  playerProfile Player?
-  parentLinks   ParentPlayer[]
+  role                Role           @default(VISITOR)
+  accounts            Account[]
+  sessions            Session[]
+  playerProfile       Player?
+  collaboratorProfile Collaborator?
+  parentLinks         ParentPlayer[]
 }
 
 model VerificationToken {
@@ -65,10 +66,39 @@ model VerificationToken {
 }
 
 model Category {
-  code        String   @id
-  description String
-  active      Boolean  @default(true)
-  players     Player[]
+  code          String         @id
+  description   String
+  active        Boolean        @default(true)
+  players       Player[]
+  collaborators Collaborator[]
+}
+
+enum CollaboratorKind {
+  COORDINATOR
+  THIRD_TIME
+  SPONSOR
+  SPECIAL_CASH
+}
+
+enum CollaboratorStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Collaborator {
+  id              String             @id @default(cuid())
+  legacyId        Int                @unique
+  // Sheet column Descripción, stored exactly. The sheet has no email.
+  displayName     String
+  kind            CollaboratorKind
+  categoryCode    String?
+  category        Category?          @relation(fields: [categoryCode], references: [code], onDelete: Restrict)
+  status          CollaboratorStatus
+  statusChangedOn DateTime?          @db.Date
+  userId          String?            @unique
+  user            User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 }
 
 enum RosterStatus {

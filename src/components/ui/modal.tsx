@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "cn";
+
+const ModalLayerContext = createContext<HTMLElement | null>(null);
+
+export function useModalLayer(): HTMLElement | null {
+  return useContext(ModalLayerContext);
+}
 
 export function Modal({
   open,
@@ -24,6 +29,17 @@ export function Modal({
   className?: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const dismissRef = useRef(false);
+  const [layer, setLayer] = useState<HTMLElement | null>(null);
+
+  function requestClose() {
+    dismissRef.current = true;
+    onClose();
+  }
+
+  useEffect(() => {
+    setLayer(dialogRef.current);
+  }, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -31,17 +47,38 @@ export function Modal({
       return;
     }
 
-    if (open && !dialog.open) {
-      dialog.showModal();
+    if (!open) {
+      if (dialog.open) {
+        dismissRef.current = true;
+        dialog.close();
+      }
       return;
     }
 
-    if (!open && dialog.open) {
-      dialog.close();
+    dismissRef.current = false;
+    (dialog as HTMLDialogElement & { closedBy?: "any" | "closerequest" | "none" }).closedBy = "none";
+    if (!dialog.open) {
+      dialog.showModal();
     }
+
+    const element = dialog;
+    function reopenIfDismissedByNestedUi() {
+      queueMicrotask(() => {
+        if (!dismissRef.current && !element.open) {
+          element.showModal();
+        }
+      });
+    }
+
+    dialog.addEventListener("close", reopenIfDismissedByNestedUi);
+    return () => {
+      dismissRef.current = true;
+      dialog.removeEventListener("close", reopenIfDismissedByNestedUi);
+    };
   }, [open]);
 
   return (
+    <ModalLayerContext.Provider value={layer}>
     <dialog
       ref={dialogRef}
       aria-labelledby="modal-title"
@@ -52,24 +89,32 @@ export function Modal({
       )}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
       }}
-      onClick={(event) => {
-        if (event.target === dialogRef.current) {
-          onClose();
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || event.defaultPrevented) {
+          return;
         }
+        const target = event.target;
+        if (target instanceof Element && target.closest("[data-slot='select-content']")) {
+          return;
+        }
+        event.preventDefault();
+        requestClose();
       }}
     >
-      <div className="flex min-h-full items-end justify-center p-4 sm:items-center">
+      <div
+        className="flex min-h-full items-end justify-center p-4 sm:items-center"
+        onPointerDown={(event) => {
+          if (event.target === event.currentTarget) {
+            requestClose();
+          }
+        }}
+      >
         <div
           role="document"
-          className={cn(
-            "grid max-h-[min(90dvh,720px)] w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-xl",
-            footer ? "grid-rows-[auto_minmax(0,1fr)_auto]" : "grid-rows-[auto_minmax(0,1fr)]",
-          )}
-          onClick={(event) => event.stopPropagation()}
+          className="flex max-h-[min(90dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl"
         >
-          <header className="flex min-h-0 items-center gap-4 border-b border-border/70 px-5 py-4">
+          <header className="flex shrink-0 items-center gap-4 border-b border-border/70 px-5 py-4">
             {portrait ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -92,18 +137,17 @@ export function Modal({
               ) : null}
             </div>
           </header>
-          <div className="min-h-0 overflow-hidden">
-            <ScrollArea className="h-full max-h-full w-full [&_[data-slot=scroll-area-viewport]]:max-h-full">
-              <div className="px-5 py-4">{children}</div>
-            </ScrollArea>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
+            {children}
           </div>
           {footer ? (
-            <footer className="relative z-10 border-t border-border/70 bg-card px-5 py-4">
+            <footer className="shrink-0 border-t border-border/70 bg-card px-5 py-4">
               {footer}
             </footer>
           ) : null}
         </div>
       </div>
     </dialog>
+    </ModalLayerContext.Provider>
   );
 }

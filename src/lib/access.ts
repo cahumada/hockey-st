@@ -8,7 +8,9 @@ export type Capability =
   | "assign-roles"
   | "club-report"
   | "parent-report"
-  | "manage-roster";
+  | "manage-roster"
+  | "manage-collaborators"
+  | "view-categories";
 
 export type AccessScope = "all" | "own" | "linked";
 

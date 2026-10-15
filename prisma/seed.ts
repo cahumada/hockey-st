@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
+import { legacyCollaborators } from "../src/lib/legacy-collaborators.ts";
 import { legacyCategories, legacyPlayers } from "../src/lib/legacy-roster.ts";
 import { isRosterInactiveReason } from "../src/lib/roster.ts";
 
@@ -46,6 +47,23 @@ async function main() {
         rosterStatus: player.rosterStatus,
         statusReason,
         statusChangedOn: player.statusChangedOn ? rosterDate(player.statusChangedOn) : null,
+      },
+    });
+  }
+
+  for (const collaborator of legacyCollaborators) {
+    await prisma.collaborator.upsert({
+      where: { legacyId: collaborator.legacyId },
+      update: {},
+      create: {
+        legacyId: collaborator.legacyId,
+        displayName: collaborator.displayName,
+        kind: collaborator.kind,
+        categoryCode: collaborator.categoryCode,
+        status: collaborator.status,
+        statusChangedOn: collaborator.statusChangedOn
+          ? rosterDate(collaborator.statusChangedOn)
+          : null,
       },
     });
   }

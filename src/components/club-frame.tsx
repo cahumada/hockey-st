@@ -3,7 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import {
+  ArrowLeftRight,
+  ChartColumn,
+  Handshake,
+  House,
+  LayoutDashboard,
+  Menu,
+  Shield,
+  Tags,
+  Users,
+  X,
+  type LucideIcon,
+} from "lucide-react";
+import type { MenuIconName } from "@/components/capability-links";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { ProfileMenu } from "@/components/profile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -12,6 +25,17 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "cn";
 
 const desktopQuery = "(min-width: 768px)";
+
+const menuIcons: Record<MenuIconName, LucideIcon> = {
+  dashboard: LayoutDashboard,
+  movements: ArrowLeftRight,
+  roles: Shield,
+  players: Users,
+  categories: Tags,
+  collaborators: Handshake,
+  "club-report": ChartColumn,
+  "parent-report": House,
+};
 
 function subscribeDesktop(onChange: () => void) {
   const media = window.matchMedia(desktopQuery);
@@ -47,7 +71,7 @@ export function ClubFrame({
   signOut,
   children,
 }: {
-  links: { href: string; label: string }[];
+  links: { href: string; label: string; icon: MenuIconName }[];
   roleLabel: string;
   name: string | null;
   image: string | null;
@@ -156,6 +180,7 @@ export function ClubFrame({
           <ul className="flex flex-col pb-4">
             {links.map((link) => {
               const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              const Icon = menuIcons[link.icon];
               return (
                 <li key={link.href}>
                   <Link
@@ -163,12 +188,13 @@ export function ClubFrame({
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex min-h-11 items-center border-l-2 px-3 text-sm font-medium",
+                      "flex min-h-11 items-center gap-3 border-l-2 px-3 text-sm font-medium",
                       active
                         ? "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground"
                         : "border-transparent text-sidebar-foreground",
                     )}
                   >
+                    <Icon aria-hidden="true" className="size-4 shrink-0" />
                     {link.label}
                   </Link>
                 </li>

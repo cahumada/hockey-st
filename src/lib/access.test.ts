@@ -9,6 +9,8 @@ const capabilities: Capability[] = [
   "club-report",
   "parent-report",
   "manage-roster",
+  "manage-collaborators",
+  "view-categories",
 ];
 
 test("administrator can open every club capability at full scope", () => {
@@ -36,6 +38,14 @@ test("administrator can open every club capability at full scope", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("ADMINISTRATOR", "manage-collaborators"), {
+    allowed: true,
+    scope: "all",
+  });
+  assert.deepEqual(accessFor("ADMINISTRATOR", "view-categories"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("coordinator can operate the club but cannot assign roles", () => {
@@ -60,6 +70,14 @@ test("coordinator can operate the club but cannot assign roles", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("COORDINATOR", "manage-collaborators"), {
+    allowed: true,
+    scope: "all",
+  });
+  assert.deepEqual(accessFor("COORDINATOR", "view-categories"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("collaborator registers movements and sees only their own dashboard", () => {
@@ -71,7 +89,14 @@ test("collaborator registers movements and sees only their own dashboard", () =>
     allowed: true,
     scope: "all",
   });
-  for (const capability of ["assign-roles", "club-report", "parent-report", "manage-roster"] as const) {
+  for (const capability of [
+    "assign-roles",
+    "club-report",
+    "parent-report",
+    "manage-roster",
+    "manage-collaborators",
+    "view-categories",
+  ] as const) {
     assert.equal(accessFor("COLLABORATOR", capability).allowed, false);
   }
 });

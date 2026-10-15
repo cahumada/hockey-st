@@ -3,9 +3,11 @@ import { test } from "node:test";
 import {
   applyRosterChange,
   clubDate,
+  formatCategoryLabel,
   formatRosterDate,
   groupPlayersByCategory,
   parsePlayerProfile,
+  sortCategories,
 } from "./roster.ts";
 
 const categories = [
@@ -13,6 +15,14 @@ const categories = [
   { code: "PS", description: "Primera" },
   { code: "Esc", description: "Escuelita" },
 ];
+
+test("category labels use the club code and description, in club order", () => {
+  assert.equal(formatCategoryLabel({ code: "PS", description: "Primera" }), "PS · Primera");
+  assert.deepEqual(
+    sortCategories(categories).map((category) => category.code),
+    ["PS", "9na", "Esc"],
+  );
+});
 
 test("profile edit keeps a trimmed display name and optional given and family names", () => {
   const parsed = parsePlayerProfile(

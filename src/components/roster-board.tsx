@@ -5,9 +5,10 @@ import { PlayerCard, type PlayerCardData } from "@/components/player-card";
 import { PlayerAvatarModal } from "@/components/player-avatar-modal";
 import { PlayerRosterModal, type PlayerRosterFormData } from "@/components/player-roster-modal";
 import { PlayerRosterStatusModal } from "@/components/player-roster-status-modal";
+import { CategorySelect } from "@/components/category-select";
 import { Button } from "@/components/ui/button";
 import { browseRoster, type RosterBrowseStatus } from "@/lib/roster-browse";
-import type { RosterCategory } from "@/lib/roster";
+import { formatCategoryLabel, type RosterCategory } from "@/lib/roster";
 import { cn } from "cn";
 
 type RosterGroup = {
@@ -49,36 +50,16 @@ export function RosterBoard({
     () => new Map(rosterRecords.map((record) => [record.id, record])),
     [rosterRecords],
   );
-  const result = useMemo(() => {
-    const browsed = browseRoster(groups, { text, status, categoryCode });
-
-    if (
-      categoryCode !== null &&
-      !browsed.categories.some((category) => category.code === categoryCode)
-    ) {
-      return browseRoster(groups, { text, status, categoryCode: null });
-    }
-
-    return browsed;
-  }, [groups, text, status, categoryCode]);
-  const selectedCategory =
-    categoryCode !== null && result.categories.some((category) => category.code === categoryCode)
-      ? categoryCode
-      : null;
-  const categoryTotal = result.categories.reduce((sum, category) => sum + category.count, 0);
-  const categoryStillListed =
-    categoryCode === null ||
-    result.categories.some((category) => category.code === categoryCode);
+  const result = useMemo(
+    () => browseRoster(groups, { text, status, categoryCode }),
+    [groups, text, status, categoryCode],
+  );
   const modalPlayer =
     modal?.mode === "edit" ? recordsById.get(modal.playerId) ?? null : null;
   const modalOpen = modal !== null && (modal.mode === "create" || modalPlayer !== null);
   const showRosterModal = modal !== null && (modal.mode === "create" || modalPlayer !== null);
   const statusPlayer = statusPlayerId ? recordsById.get(statusPlayerId) ?? null : null;
   const avatarPlayer = avatarPlayerId ? recordsById.get(avatarPlayerId) ?? null : null;
-
-  if (!categoryStillListed) {
-    setCategoryCode(null);
-  }
 
   function clearFilters() {
     setText("");
@@ -113,7 +94,7 @@ export function RosterBoard({
               className={fieldClass}
             />
           </label>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
             <fieldset className="flex shrink-0 items-center gap-2 border-0 p-0">
               <legend className="sr-only">Estado</legend>
               {statusOptions.map((option) => (
@@ -126,35 +107,15 @@ export function RosterBoard({
                 </FilterButton>
               ))}
             </fieldset>
-            <span aria-hidden="true" className="h-6 w-px shrink-0 bg-border" />
-            <nav aria-label="Categorías" className="shrink-0">
-              <ul className="flex flex-nowrap gap-2">
-                <li className="shrink-0">
-                  <FilterButton
-                    pressed={selectedCategory === null}
-                    onClick={() => setCategoryCode(null)}
-                  >
-                    Todas
-                    <Count selected={selectedCategory === null}>{categoryTotal}</Count>
-                  </FilterButton>
-                </li>
-                {result.categories.map((category) => {
-                  const selected = selectedCategory === category.code;
-
-                  return (
-                    <li key={category.code} className="shrink-0">
-                      <FilterButton
-                        pressed={selected}
-                        onClick={() => setCategoryCode(category.code)}
-                      >
-                        {category.code}
-                        <Count selected={selected}>{category.count}</Count>
-                      </FilterButton>
-                    </li>
-                  );
-                })}
-              </ul>
-            </nav>
+            <div className="min-w-0 lg:flex-1">
+              <CategorySelect
+                id="roster-category"
+                categories={categories}
+                value={categoryCode ?? "all"}
+                allowAll
+                onValueChange={(next) => setCategoryCode(next === "all" ? null : next)}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -173,10 +134,7 @@ export function RosterBoard({
                 <li className={cn("col-span-full", index > 0 && "pt-4")}>
                   <h2 className="flex items-baseline gap-2 text-base font-semibold">
                     <span aria-hidden="true" className="inline-block h-4 w-1 self-center rounded-full bg-primary" />
-                    <span>{group.category.code}</span>
-                    <span className="font-normal text-muted-foreground">
-                      {group.category.description}
-                    </span>
+                    <span>{formatCategoryLabel(group.category)}</span>
                   </h2>
                 </li>
                 {group.players.map((player) => (
@@ -250,14 +208,6 @@ function FilterButton({
     >
       {children}
     </button>
-  );
-}
-
-function Count({ selected, children }: { selected: boolean; children: ReactNode }) {
-  return (
-    <span className={cn("ml-2", selected ? "text-primary-foreground" : "text-muted-foreground")}>
-      {children}
-    </span>
   );
 }
 
