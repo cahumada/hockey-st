@@ -11,6 +11,7 @@ const capabilities: Capability[] = [
   "manage-roster",
   "manage-collaborators",
   "view-categories",
+  "manage-maintenance",
 ];
 
 test("administrator can open every club capability at full scope", () => {
@@ -46,6 +47,10 @@ test("administrator can open every club capability at full scope", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("ADMINISTRATOR", "manage-maintenance"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("coordinator can operate the club but cannot assign roles", () => {
@@ -78,6 +83,10 @@ test("coordinator can operate the club but cannot assign roles", () => {
     allowed: true,
     scope: "all",
   });
+  assert.deepEqual(accessFor("COORDINATOR", "manage-maintenance"), {
+    allowed: true,
+    scope: "all",
+  });
 });
 
 test("collaborator registers movements and sees only their own dashboard", () => {
@@ -96,6 +105,7 @@ test("collaborator registers movements and sees only their own dashboard", () =>
     "manage-roster",
     "manage-collaborators",
     "view-categories",
+    "manage-maintenance",
   ] as const) {
     assert.equal(accessFor("COLLABORATOR", capability).allowed, false);
   }

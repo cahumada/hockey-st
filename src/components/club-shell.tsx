@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { signOut } from "@/auth";
-import { linksForRole, roleLabels } from "@/components/capability-links";
+import { navigationForRole, roleLabels } from "@/components/capability-links";
 import { ClubFrame } from "@/components/club-frame";
 import { Button } from "@/components/ui/button";
 import type { Role } from "@/lib/access";
@@ -23,7 +23,7 @@ export function ClubShell({
 }) {
   return (
     <ClubFrame
-      links={linksForRole(role)}
+      navigation={navigationForRole(role)}
       roleLabel={roleLabels[role]}
       name={name}
       image={image}

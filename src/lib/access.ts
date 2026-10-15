@@ -10,7 +10,8 @@ export type Capability =
   | "parent-report"
   | "manage-roster"
   | "manage-collaborators"
-  | "view-categories";
+  | "view-categories"
+  | "manage-maintenance";
 
 export type AccessScope = "all" | "own" | "linked";
 

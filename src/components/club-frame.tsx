@@ -6,17 +6,20 @@ import { usePathname } from "next/navigation";
 import {
   ArrowLeftRight,
   ChartColumn,
+  HandCoins,
   Handshake,
   House,
   LayoutDashboard,
   Menu,
+  Receipt,
   Shield,
   Tags,
   Users,
+  Wrench,
   X,
   type LucideIcon,
 } from "lucide-react";
-import type { MenuIconName } from "@/components/capability-links";
+import type { MenuIconName, NavigationItem } from "@/components/capability-links";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { ProfileMenu } from "@/components/profile-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,6 +38,9 @@ const menuIcons: Record<MenuIconName, LucideIcon> = {
   collaborators: Handshake,
   "club-report": ChartColumn,
   "parent-report": House,
+  maintenance: Wrench,
+  "expense-types": Receipt,
+  "income-types": HandCoins,
 };
 
 function subscribeDesktop(onChange: () => void) {
@@ -63,15 +69,29 @@ function Crest({ alt }: { alt: string }) {
   );
 }
 
+function linkClass(active: boolean, indented: boolean) {
+  return cn(
+    "flex min-h-11 items-center gap-3 border-l-2 pr-3 text-sm font-medium",
+    indented ? "pl-8" : "pl-3",
+    active
+      ? "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground"
+      : "border-transparent text-sidebar-foreground",
+  );
+}
+
+function isCurrentPath(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function ClubFrame({
-  links,
+  navigation,
   roleLabel,
   name,
   image,
   signOut,
   children,
 }: {
-  links: { href: string; label: string; icon: MenuIconName }[];
+  navigation: NavigationItem[];
   roleLabel: string;
   name: string | null;
   image: string | null;
@@ -178,24 +198,50 @@ export function ClubFrame({
         </div>
         <ScrollArea className="min-h-0 flex-1">
           <ul className="flex flex-col pb-4">
-            {links.map((link) => {
-              const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
-              const Icon = menuIcons[link.icon];
+            {navigation.map((item) => {
+              if (item.type === "group") {
+                const Icon = menuIcons[item.icon];
+                return (
+                  <li key={item.id}>
+                    <div className="flex min-h-11 items-center gap-3 border-l-2 border-transparent px-3 text-sm font-medium text-sidebar-foreground">
+                      <Icon aria-hidden="true" className="size-4 shrink-0" />
+                      {item.label}
+                    </div>
+                    <ul>
+                      {item.children.map((child) => {
+                        const active = isCurrentPath(pathname, child.href);
+                        const ChildIcon = menuIcons[child.icon];
+                        return (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              aria-current={active ? "page" : undefined}
+                              onClick={() => setOpen(false)}
+                              className={linkClass(active, true)}
+                            >
+                              <ChildIcon aria-hidden="true" className="size-4 shrink-0" />
+                              {child.label}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                );
+              }
+
+              const active = isCurrentPath(pathname, item.href);
+              const Icon = menuIcons[item.icon];
               return (
-                <li key={link.href}>
+                <li key={item.href}>
                   <Link
-                    href={link.href}
+                    href={item.href}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex min-h-11 items-center gap-3 border-l-2 px-3 text-sm font-medium",
-                      active
-                        ? "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground"
-                        : "border-transparent text-sidebar-foreground",
-                    )}
+                    className={linkClass(active, false)}
                   >
                     <Icon aria-hidden="true" className="size-4 shrink-0" />
-                    {link.label}
+                    {item.label}
                   </Link>
                 </li>
               );
