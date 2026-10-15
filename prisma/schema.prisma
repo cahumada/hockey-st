@@ -149,3 +149,26 @@ model ParentPlayer {
 
   @@id([parentUserId, playerId])
 }
+
+enum CatalogStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model ExpenseType {
+  id          String        @id @default(cuid())
+  legacyId    Int           @unique
+  description String
+  status      CatalogStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model IncomeType {
+  id          String        @id @default(cuid())
+  legacyId    Int           @unique
+  description String
+  status      CatalogStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
