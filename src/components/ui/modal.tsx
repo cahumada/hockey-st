@@ -1,7 +1,10 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { cn } from "cn";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const ModalLayerContext = createContext<HTMLElement | null>(null);
 
@@ -17,7 +20,9 @@ export function Modal({
   onClose,
   children,
   footer,
+  headerClose = false,
   className,
+  wide = false,
 }: {
   open: boolean;
   title: string;
@@ -26,7 +31,9 @@ export function Modal({
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  headerClose?: boolean;
   className?: string;
+  wide?: boolean;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dismissRef = useRef(false);
@@ -95,7 +102,10 @@ export function Modal({
           return;
         }
         const target = event.target;
-        if (target instanceof Element && target.closest("[data-slot='select-content']")) {
+        if (
+          target instanceof Element &&
+          target.closest("[data-slot='select-content'], [data-slot='popover-content']")
+        ) {
           return;
         }
         event.preventDefault();
@@ -112,7 +122,20 @@ export function Modal({
       >
         <div
           role="document"
-          className="flex max-h-[min(90dvh,720px)] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl"
+          style={{
+            maxHeight: wide ? "min(92dvh, 960px)" : "min(90dvh, 720px)",
+            ["--modal-body-max" as string]: footer
+              ? wide
+                ? "calc(min(92dvh, 960px) - 14rem)"
+                : "calc(min(90dvh, 720px) - 14rem)"
+              : wide
+                ? "calc(min(92dvh, 960px) - 8rem)"
+                : "calc(min(90dvh, 720px) - 8rem)",
+          }}
+          className={cn(
+            "flex w-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-xl",
+            wide ? "max-w-3xl" : "max-w-lg",
+          )}
         >
           <header className="flex shrink-0 items-center gap-4 border-b border-border/70 px-5 py-4">
             {portrait ? (
@@ -136,9 +159,23 @@ export function Modal({
                 </p>
               ) : null}
             </div>
+            {headerClose ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Cerrar"
+                className="min-h-11 min-w-11 shrink-0"
+                onClick={requestClose}
+              >
+                <X aria-hidden="true" />
+              </Button>
+            ) : null}
           </header>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
-            {children}
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <ScrollArea className="h-full max-h-(--modal-body-max) [&_[data-slot=scroll-area-viewport]]:max-h-(--modal-body-max) [&_[data-slot=scroll-area-viewport]]:overscroll-contain">
+              <div className="px-5 py-4">{children}</div>
+            </ScrollArea>
           </div>
           {footer ? (
             <footer className="shrink-0 border-t border-border/70 bg-card px-5 py-4">

@@ -28,6 +28,10 @@ Optional profile fields (birth date, membership, jersey number, DNI, join date) 
 
 Avatar upload is separate: crop from the card camera action, not from the profile modal.
 
+## Expense (create / edit)
+
+The movements ledger uses `validateExpenseFormValues`. Tipo and colaborador come from the existing catalogs. Total is unit amount times quantity. Importe and cantidad use `FormNumeric`: the field shows an Argentine number, and the stored value stays a decimal string. Importe includes the peso mark. The comprobante is optional and is stored in private Blob when `BLOB_READ_WRITE_TOKEN` is set. The create and edit modals pick it with the reusable `FileUpload` drop zone.
+
 ## Adding a form
 
 1. Define or reuse value types and validators under `src/lib/`.

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ArrowLeftRight,
+  BanknoteArrowDown,
   ChartColumn,
   HandCoins,
   Handshake,
@@ -31,7 +31,7 @@ const desktopQuery = "(min-width: 768px)";
 
 const menuIcons: Record<MenuIconName, LucideIcon> = {
   dashboard: LayoutDashboard,
-  movements: ArrowLeftRight,
+  movements: BanknoteArrowDown,
   roles: Shield,
   players: Users,
   categories: Tags,

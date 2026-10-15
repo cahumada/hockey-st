@@ -35,7 +35,7 @@ const maintenanceGroup: NavigationGroupMeta = {
 
 export const capabilityLinks: CapabilityLink[] = [
   { capability: "club-dashboard", href: "/dashboard", label: "Panel", icon: "dashboard" },
-  { capability: "register-movements", href: "/movements", label: "Movimientos", icon: "movements" },
+  { capability: "register-movements", href: "/movements", label: "Gastos", icon: "movements" },
   { capability: "assign-roles", href: "/roles", label: "Roles", icon: "roles" },
   { capability: "manage-roster", href: "/players", label: "Jugadoras", icon: "players" },
   { capability: "view-categories", href: "/categories", label: "Categorías", icon: "categories" },
