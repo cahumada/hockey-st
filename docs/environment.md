@@ -7,9 +7,9 @@ The app reads these variables:
 - `AUTH_GOOGLE_ID`: Google OAuth client id.
 - `AUTH_GOOGLE_SECRET`: Google OAuth client secret.
 - `AUTH_URL`: public base URL of this app, used for Auth.js callbacks. Local development uses `http://localhost:3005`.
-- `BLOB_READ_WRITE_TOKEN`: read-write token for the private Vercel Blob store. Player photos are uploaded with `access: "private"` and are read only by roster managers.
+- `BLOB_READ_WRITE_TOKEN`: read-write token for the private Vercel Blob store. Player photos and expense receipts are uploaded with `access: "private"`. Roster managers read photos. Roles that can register movements read receipts.
 - `ENCRYPTION_KEY`: base64-encoded 32-byte AES key for encrypting sensitive field values in PostgreSQL (player DNI today; other fields may use the same key). Generate with `openssl rand -base64 32`. Without it, roster forms still work but encrypted fields such as DNI cannot be stored; the UI warns coordinators and blocks submit while DNI is filled in.
 
 Google is not a role source. New users are visitors until an administrator assigns another role.
 
-Receipt storage is not part of this slice.
+Expense receipts use the same private Blob store as player photos. A missing token blocks only the file; the rest of the expense can still be saved if no file is attached.

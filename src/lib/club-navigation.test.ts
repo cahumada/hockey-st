@@ -28,7 +28,7 @@ function link(href: string, label: string, icon: NavigationItem extends { icon: 
 test("administrator navigation keeps the flat links and inserts Mantenimiento after collaborators", () => {
   assert.deepEqual(navigationForRole("ADMINISTRATOR"), [
     link("/dashboard", "Panel", "dashboard"),
-    link("/movements", "Movimientos", "movements"),
+    link("/movements", "Gastos", "movements"),
     link("/roles", "Roles", "roles"),
     link("/players", "Jugadoras", "players"),
     link("/categories", "Categorías", "categories"),
@@ -42,7 +42,7 @@ test("administrator navigation keeps the flat links and inserts Mantenimiento af
 test("coordinator navigation includes Mantenimiento and keeps the other allowed links in order", () => {
   assert.deepEqual(navigationForRole("COORDINATOR"), [
     link("/dashboard", "Panel", "dashboard"),
-    link("/movements", "Movimientos", "movements"),
+    link("/movements", "Gastos", "movements"),
     link("/players", "Jugadoras", "players"),
     link("/categories", "Categorías", "categories"),
     link("/collaborators", "Colaboradores", "collaborators"),
