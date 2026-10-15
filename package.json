@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --experimental-strip-types --test src/lib/access.test.ts src/lib/club-navigation.test.ts src/lib/google-profile.test.ts src/lib/legacy-roster.test.ts src/lib/roster.test.ts src/lib/authenticated-entry.test.ts src/lib/profile-label.test.ts src/lib/player-portrait.test.ts src/lib/roster-browse.test.ts src/lib/player-dni.test.ts src/lib/player-details.test.ts src/lib/avatar-crop.test.ts src/lib/player-profile-form.test.ts src/lib/jersey-dorsal.test.ts src/lib/legacy-collaborators.test.ts src/lib/collaborators.test.ts src/lib/collaborator-browse.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/access.test.ts src/lib/club-navigation.test.ts src/lib/google-profile.test.ts src/lib/legacy-roster.test.ts src/lib/roster.test.ts src/lib/authenticated-entry.test.ts src/lib/profile-label.test.ts src/lib/player-portrait.test.ts src/lib/roster-browse.test.ts src/lib/player-dni.test.ts src/lib/player-details.test.ts src/lib/avatar-crop.test.ts src/lib/player-profile-form.test.ts src/lib/jersey-dorsal.test.ts src/lib/legacy-collaborators.test.ts src/lib/collaborators.test.ts src/lib/collaborator-browse.test.ts src/lib/legacy-maintenance-catalogs.test.ts",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
     "db:seed": "prisma db seed",

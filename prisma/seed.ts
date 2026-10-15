@@ -2,6 +2,10 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { legacyCollaborators } from "../src/lib/legacy-collaborators.ts";
+import {
+  legacyExpenseTypes,
+  legacyIncomeTypes,
+} from "../src/lib/legacy-maintenance-catalogs.ts";
 import { legacyCategories, legacyPlayers } from "../src/lib/legacy-roster.ts";
 import { isRosterInactiveReason } from "../src/lib/roster.ts";
 
@@ -64,6 +68,30 @@ async function main() {
         statusChangedOn: collaborator.statusChangedOn
           ? rosterDate(collaborator.statusChangedOn)
           : null,
+      },
+    });
+  }
+
+  for (const expenseType of legacyExpenseTypes) {
+    await prisma.expenseType.upsert({
+      where: { legacyId: expenseType.legacyId },
+      update: {},
+      create: {
+        legacyId: expenseType.legacyId,
+        description: expenseType.description,
+        status: expenseType.status,
+      },
+    });
+  }
+
+  for (const incomeType of legacyIncomeTypes) {
+    await prisma.incomeType.upsert({
+      where: { legacyId: incomeType.legacyId },
+      update: {},
+      create: {
+        legacyId: incomeType.legacyId,
+        description: incomeType.description,
+        status: incomeType.status,
       },
     });
   }
