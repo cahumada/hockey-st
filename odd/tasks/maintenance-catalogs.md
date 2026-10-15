@@ -44,7 +44,7 @@ Tipo Ingresos, all `ACTIVE`:
 
 - [x] M1 Grant `manage-maintenance` and show the Mantenimiento group to administrator and coordinator.
 - [x] M2 Add both catalog models, the migration, and the non-destructive seed.
-- [ ] M3 Add both catalog pages with the collaborator-list UX.
+- [x] M3 Add both catalog pages with the collaborator-list UX.
 
 ## Acceptance
 
@@ -55,14 +55,16 @@ Tipo Ingresos, all `ACTIVE`:
 
 ## Progress
 
-Branch `feat/maintenance-catalogs`. M1 is implemented. The package writer was unusable, so M1 ran on the native writer fallback.
+Branch `feat/maintenance-catalogs`. M1, M2, and M3 are implemented. The package writer was unusable, so the tasks ran on the native writer fallback.
 
 ## Verification
 
 M1: `npm test` RED was 60 pass / 1 fail (`club-navigation.ts` missing). GREEN was 63 pass / 0 fail. Commit `e031c56c9a37fe09ff7ce8f7bc38bf5113cd2123`. Sidebar was not opened in a browser because the catalog routes do not exist yet.
 
-M2: `npm test` RED was 63 pass / 1 fail (catalog module missing). GREEN was 65 pass / 0 fail. `prisma validate` and `prisma generate` exited 0. Migration SQL was not applied.
+M2: `npm test` RED was 63 pass / 1 fail (catalog module missing). GREEN was 65 pass / 0 fail. `prisma validate` and `prisma generate` exited 0. Migration SQL was not applied. Commit `47e7dc2fc88a0dbacfa4747bf62d96e67f60e97a`.
+
+M3: `npm test` RED was 65 pass / 1 fail (maintenance-catalog module missing). GREEN was 70 pass / 0 fail. `tsc --noEmit` exited 0. The catalog screens were not clicked in a browser.
 
 ## Next step
 
-M3.
+Apply `prisma/migrations/20261014223000_maintenance_catalogs` on the club database, then open Tipos de gasto and Tipos de ingreso as administrator or coordinator.
