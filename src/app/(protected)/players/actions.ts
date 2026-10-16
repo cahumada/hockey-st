@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAccess } from "@/lib/require-access";
+import { audited } from "@/lib/require-access";
 import { savePrivateAvatar, removePrivateAvatar } from "@/lib/player-avatar-store";
 import { encryptDni } from "@/lib/player-dni";
 import { loadFieldEncryptionKeyFromEnv } from "@/lib/field-encryption";
@@ -35,10 +35,16 @@ export async function submitUpdatePlayer(formData: FormData): Promise<RosterActi
 }
 
 export async function createPlayer(
+  previous: RosterActionState,
+  formData: FormData,
+): Promise<RosterActionState> {
+  return audited("manage-roster", () => createPlayerRecord(previous, formData));
+}
+
+async function createPlayerRecord(
   _previous: RosterActionState,
   formData: FormData,
 ): Promise<RosterActionState> {
-  await requireAccess("manage-roster");
 
   const categories = await prisma.category.findMany({ select: { code: true } });
   const parsed = parsePlayerForm(formData, categories.map((category) => category.code));
@@ -80,10 +86,16 @@ export async function createPlayer(
 }
 
 export async function updatePlayer(
+  previous: RosterActionState,
+  formData: FormData,
+): Promise<RosterActionState> {
+  return audited("manage-roster", () => updatePlayerRecord(previous, formData));
+}
+
+async function updatePlayerRecord(
   _previous: RosterActionState,
   formData: FormData,
 ): Promise<RosterActionState> {
-  await requireAccess("manage-roster");
 
   const playerId = text(formData, "playerId");
   if (playerId.length === 0) {
@@ -139,10 +151,16 @@ export async function updatePlayer(
 }
 
 export async function changeRosterStatus(
+  previous: RosterActionState,
+  formData: FormData,
+): Promise<RosterActionState> {
+  return audited("manage-roster", () => changeRosterStatusRecord(previous, formData));
+}
+
+async function changeRosterStatusRecord(
   _previous: RosterActionState,
   formData: FormData,
 ): Promise<RosterActionState> {
-  await requireAccess("manage-roster");
 
   const playerId = text(formData, "playerId");
   const intent = text(formData, "intent");
@@ -200,10 +218,16 @@ export async function submitUpdatePlayerAvatar(formData: FormData): Promise<Rost
 }
 
 export async function updatePlayerAvatar(
+  previous: RosterActionState,
+  formData: FormData,
+): Promise<RosterActionState> {
+  return audited("manage-roster", () => updatePlayerAvatarRecord(previous, formData));
+}
+
+async function updatePlayerAvatarRecord(
   _previous: RosterActionState,
   formData: FormData,
 ): Promise<RosterActionState> {
-  await requireAccess("manage-roster");
 
   const playerId = text(formData, "playerId");
   if (playerId.length === 0) {

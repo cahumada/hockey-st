@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
-import { requireAccess } from "@/lib/require-access";
+import { audited } from "@/lib/require-access";
 import {
   nextCollaboratorLegacyId,
   parseCollaboratorLink,
@@ -15,15 +15,23 @@ export type CollaboratorActionState = {
 };
 
 export async function createCollaborator(
+  previous: CollaboratorActionState,
+  formData: FormData,
+): Promise<CollaboratorActionState> {
+  return audited("manage-collaborators", () => createCollaboratorRecord(previous, formData));
+}
+
+async function createCollaboratorRecord(
   _previous: CollaboratorActionState,
   formData: FormData,
 ): Promise<CollaboratorActionState> {
-  await requireAccess("manage-collaborators");
 
   const categories = await prisma.category.findMany({ select: { code: true } });
   const parsed = parseCollaboratorProfile(
     {
       displayName: text(formData, "displayName"),
+      givenName: text(formData, "givenName"),
+      familyName: text(formData, "familyName"),
       kind: text(formData, "kind"),
       categoryCode: text(formData, "categoryCode"),
       status: text(formData, "status"),
@@ -43,6 +51,8 @@ export async function createCollaborator(
       data: {
         legacyId,
         displayName: parsed.displayName,
+        givenName: parsed.givenName,
+        familyName: parsed.familyName,
         kind: parsed.kind,
         categoryCode: parsed.categoryCode,
         status: parsed.status,
@@ -59,14 +69,22 @@ export async function createCollaborator(
   }
 
   revalidatePath("/collaborators");
+  revalidatePath("/movements");
+  revalidatePath("/third-time");
   return { status: "saved", message: "Colaborador creado." };
 }
 
 export async function updateCollaboratorProfile(
+  previous: CollaboratorActionState,
+  formData: FormData,
+): Promise<CollaboratorActionState> {
+  return audited("manage-collaborators", () => updateCollaboratorProfileRecord(previous, formData));
+}
+
+async function updateCollaboratorProfileRecord(
   _previous: CollaboratorActionState,
   formData: FormData,
 ): Promise<CollaboratorActionState> {
-  await requireAccess("manage-collaborators");
 
   const collaboratorId = text(formData, "collaboratorId");
   if (collaboratorId.length === 0) {
@@ -77,6 +95,8 @@ export async function updateCollaboratorProfile(
   const parsed = parseCollaboratorProfile(
     {
       displayName: text(formData, "displayName"),
+      givenName: text(formData, "givenName"),
+      familyName: text(formData, "familyName"),
       kind: text(formData, "kind"),
       categoryCode: text(formData, "categoryCode"),
       status: text(formData, "status"),
@@ -93,6 +113,8 @@ export async function updateCollaboratorProfile(
       where: { id: collaboratorId },
       data: {
         displayName: parsed.displayName,
+        givenName: parsed.givenName,
+        familyName: parsed.familyName,
         kind: parsed.kind,
         categoryCode: parsed.categoryCode,
         status: parsed.status,
@@ -109,14 +131,22 @@ export async function updateCollaboratorProfile(
   }
 
   revalidatePath("/collaborators");
+  revalidatePath("/movements");
+  revalidatePath("/third-time");
   return { status: "saved", message: "Datos guardados." };
 }
 
 export async function updateCollaboratorLink(
+  previous: CollaboratorActionState,
+  formData: FormData,
+): Promise<CollaboratorActionState> {
+  return audited("assign-roles", () => updateCollaboratorLinkRecord(previous, formData));
+}
+
+async function updateCollaboratorLinkRecord(
   _previous: CollaboratorActionState,
   formData: FormData,
 ): Promise<CollaboratorActionState> {
-  await requireAccess("assign-roles");
 
   const collaboratorId = text(formData, "collaboratorId");
   if (collaboratorId.length === 0) {

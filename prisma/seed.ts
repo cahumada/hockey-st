@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { legacyCollaborators } from "../src/lib/legacy-collaborators.ts";
+import { splitCollaboratorName } from "../src/lib/collaborators.ts";
 import {
   legacyExpenseTypes,
   legacyIncomeTypes,
@@ -62,6 +63,7 @@ async function main() {
       create: {
         legacyId: collaborator.legacyId,
         displayName: collaborator.displayName,
+        ...splitCollaboratorName(collaborator.displayName),
         kind: collaborator.kind,
         categoryCode: collaborator.categoryCode,
         status: collaborator.status,

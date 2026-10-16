@@ -18,6 +18,11 @@ const maintenanceGroup = {
       label: "Tipos de ingreso",
       icon: "income-types" as const,
     },
+    {
+      href: "/maintenance/channels",
+      label: "Tipos de canales",
+      icon: "channels" as const,
+    },
   ],
 };
 
@@ -29,6 +34,7 @@ test("administrator navigation keeps the flat links and inserts Mantenimiento af
   assert.deepEqual(navigationForRole("ADMINISTRATOR"), [
     link("/dashboard", "Panel", "dashboard"),
     link("/movements", "Gastos", "movements"),
+    link("/third-time", "3er Tiempo", "third-time"),
     link("/roles", "Roles", "roles"),
     link("/players", "Jugadoras", "players"),
     link("/categories", "Categorías", "categories"),
@@ -43,6 +49,7 @@ test("coordinator navigation includes Mantenimiento and keeps the other allowed 
   assert.deepEqual(navigationForRole("COORDINATOR"), [
     link("/dashboard", "Panel", "dashboard"),
     link("/movements", "Gastos", "movements"),
+    link("/third-time", "3er Tiempo", "third-time"),
     link("/players", "Jugadoras", "players"),
     link("/categories", "Categorías", "categories"),
     link("/collaborators", "Colaboradores", "collaborators"),
@@ -59,6 +66,8 @@ test("collaborator navigation has no maintenance group or catalog links", () => 
   const hrefs = navigation.flatMap((item) =>
     item.type === "link" ? [item.href] : item.children.map((child) => child.href),
   );
+  assert.equal(hrefs.includes("/third-time"), true);
   assert.equal(hrefs.includes("/maintenance/expense-types"), false);
   assert.equal(hrefs.includes("/maintenance/income-types"), false);
+  assert.equal(hrefs.includes("/maintenance/channels"), false);
 });

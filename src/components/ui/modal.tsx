@@ -81,6 +81,7 @@ export function Modal({
     return () => {
       dismissRef.current = true;
       dialog.removeEventListener("close", reopenIfDismissedByNestedUi);
+      if (dialog.open) dialog.close();
     };
   }, [open]);
 

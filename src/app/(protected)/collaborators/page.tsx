@@ -43,6 +43,8 @@ async function CollaboratorsPanel() {
     id: collaborator.id,
     legacyId: collaborator.legacyId,
     displayName: collaborator.displayName,
+    givenName: collaborator.givenName,
+    familyName: collaborator.familyName,
     kind: collaborator.kind,
     categoryCode: collaborator.categoryCode,
     categoryLabel: collaborator.category

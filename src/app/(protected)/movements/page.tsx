@@ -17,6 +17,7 @@ import {
 } from "@/lib/expenses";
 import { requireAccess } from "@/lib/require-access";
 import { createExpense, updateExpense } from "./actions";
+import { MovementsFallback } from "./movements-fallback";
 
 async function MovementsPanel({ query }: { query: ExpenseListQuery }) {
   await requireAccess("register-movements");
@@ -176,10 +177,6 @@ function collaboratorChoice(collaborator: {
 
 function collaboratorLabel(displayName: string, categoryCode: string | null): string {
   return categoryCode ? `${categoryCode} · ${displayName}` : displayName;
-}
-
-function MovementsFallback() {
-  return <p>Cargando gastos…</p>;
 }
 
 export default async function MovementsPage({

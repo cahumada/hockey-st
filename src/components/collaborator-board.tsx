@@ -35,6 +35,8 @@ export type CollaboratorBoardPerson = {
   id: string;
   legacyId: number;
   displayName: string;
+  givenName: string | null;
+  familyName: string | null;
   kind: CollaboratorKind;
   categoryCode: string | null;
   categoryLabel: string;
@@ -66,6 +68,17 @@ type Editor =
 const idleAction: CollaboratorActionState = { status: "idle", message: "" };
 
 const fieldClass = "h-11 w-full rounded-lg border border-input bg-background px-3 text-sm";
+const missingNameLabel = "no informa";
+
+function collaboratorLegalName(person: {
+  givenName: string | null;
+  familyName: string | null;
+}): string {
+  const parts = [person.givenName?.trim(), person.familyName?.trim()].filter(
+    (part): part is string => Boolean(part),
+  );
+  return parts.length > 0 ? parts.join(" ") : missingNameLabel;
+}
 const selectTriggerClass = "h-11 w-full data-[size=default]:h-11";
 
 const statusOptions: { value: CollaboratorBrowseStatus; label: string }[] = [
@@ -243,7 +256,7 @@ export function CollaboratorBoard({
                         />
                         <span className="block pl-2">{person.displayName}</span>
                         <span className="block pl-2 text-xs font-normal text-muted-foreground">
-                          Legajo {person.legacyId}
+                          {collaboratorLegalName(person)}
                         </span>
                       </th>
                       <td className="border-b px-3 py-3">{collaboratorKindLabels[person.kind]}</td>
@@ -319,7 +332,7 @@ function CollaboratorSummary({
       <div className="flex items-start justify-between gap-3 pt-4 pr-4 pl-5">
         <div className="min-w-0">
           <h2 className="text-base font-semibold leading-snug">{person.displayName}</h2>
-          <p className="text-xs text-muted-foreground">Legajo {person.legacyId}</p>
+          <p className="text-xs text-muted-foreground">{collaboratorLegalName(person)}</p>
         </div>
         <StatusBadge status={person.status} dateLabel={person.statusDateLabel} />
       </div>
@@ -499,18 +512,45 @@ function ProfileForm({
     <form id={formId} action={formAction} className="flex flex-col gap-3">
       {person ? <input type="hidden" name="collaboratorId" value={person.id} /> : null}
       <input type="hidden" name="categoryCode" value={categoryCode} />
-      <label className="flex flex-col gap-1 text-sm font-medium" htmlFor={`${formId}-name`}>
-        Nombre
+      <label className="flex flex-col gap-1 text-sm font-medium" htmlFor={`${formId}-display-name`}>
+        Alias
         <input
-          id={`${formId}-name`}
+          id={`${formId}-display-name`}
           name="displayName"
           defaultValue={person?.displayName ?? ""}
           className={fieldClass}
           disabled={pending}
           required
-          maxLength={120}
+          maxLength={80}
+          autoComplete="nickname"
         />
       </label>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-sm font-medium" htmlFor={`${formId}-given-name`}>
+          Nombre
+          <input
+            id={`${formId}-given-name`}
+            name="givenName"
+            defaultValue={person?.givenName ?? ""}
+            className={fieldClass}
+            disabled={pending}
+            maxLength={80}
+            autoComplete="given-name"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm font-medium" htmlFor={`${formId}-family-name`}>
+          Apellido
+          <input
+            id={`${formId}-family-name`}
+            name="familyName"
+            defaultValue={person?.familyName ?? ""}
+            className={fieldClass}
+            disabled={pending}
+            maxLength={80}
+            autoComplete="family-name"
+          />
+        </label>
+      </div>
       <ChoiceSelect
         id={`${formId}-kind`}
         label="Tipo"
