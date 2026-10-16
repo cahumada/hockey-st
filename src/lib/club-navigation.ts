@@ -10,6 +10,7 @@ export type MenuIconName =
   | "collaborators"
   | "club-report"
   | "parent-report"
+  | "reports"
   | "maintenance"
   | "expense-types"
   | "income-types"
@@ -34,6 +35,8 @@ const maintenanceGroup: NavigationGroupMeta = {
   label: "Mantenimiento",
   icon: "maintenance",
 };
+
+const reportsGroup = { id: "reports", label: "Reportes", icon: "reports" as const };
 
 export const capabilityLinks: CapabilityLink[] = [
   { capability: "club-dashboard", href: "/dashboard", label: "Panel", icon: "dashboard" },
@@ -68,6 +71,13 @@ export const capabilityLinks: CapabilityLink[] = [
     label: "Tipos de canales",
     icon: "channels",
     group: maintenanceGroup,
+  },
+  {
+    capability: "register-movements",
+    href: "/reports/third-time",
+    label: "3er Tiempo",
+    icon: "third-time",
+    group: reportsGroup,
   },
   { capability: "club-report", href: "/reports/club", label: "Informe del club", icon: "club-report" },
   {
