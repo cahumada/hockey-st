@@ -50,7 +50,7 @@ async function ThirdTimePanel({ query }: { query: ThirdTimeListQuery }) {
       },
     }),
     prisma.category.findMany({
-      select: { code: true, description: true, active: true },
+      select: { code: true, description: true, active: true, thirdTimeAmount: true },
     }),
     prisma.collaborator.findMany({
       where: { kind: { in: [...thirdTimeCollaboratorKinds] } },
@@ -208,12 +208,18 @@ function channelChoices(stored: readonly (string | null)[], selected: readonly s
 }
 
 function categoryChoices(
-  categories: readonly { code: string; description: string; active: boolean }[],
+  categories: readonly {
+    code: string;
+    description: string;
+    active: boolean;
+    thirdTimeAmount: { toString(): string } | null;
+  }[],
 ): ThirdTimeCategoryChoice[] {
   return sortCategories([...categories]).map((category) => ({
     code: category.code,
     label: formatCategoryLabel(category),
     active: category.active,
+    thirdTimeAmount: category.thirdTimeAmount ? category.thirdTimeAmount.toString() : null,
   }));
 }
 

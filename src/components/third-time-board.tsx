@@ -94,6 +94,7 @@ export type ThirdTimeCategoryChoice = {
   code: string;
   label: string;
   active: boolean;
+  thirdTimeAmount: string | null;
 };
 
 export type ThirdTimeRow = {
@@ -848,9 +849,17 @@ function FeeModal({
               onBlur={field.onBlur}
               onValueChange={(next) => {
                 field.onChange(next ?? "");
-                if (!next || form.getValues("controllerId").trim()) return;
-                const player = playerChoices.find((item) => item.id === next);
-                if (!player) return;
+                const player = next ? playerChoices.find((item) => item.id === next) : undefined;
+                if (!row) {
+                  const category = player
+                    ? categories.find((item) => item.code === player.categoryCode)
+                    : undefined;
+                  form.setValue("amount", category?.thirdTimeAmount ?? "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }
+                if (!player || form.getValues("controllerId").trim()) return;
                 const controllerId = defaultCategoryCollaboratorId(collaborators, player.categoryCode);
                 if (controllerId) {
                   form.setValue("controllerId", controllerId, { shouldDirty: true, shouldValidate: true });
@@ -1085,6 +1094,11 @@ function CategoryFeeModal({
           onValueChange={(next) => {
             const code = next ?? "";
             form.setValue("categoryCode", code, { shouldDirty: true, shouldValidate: true });
+            const category = categoryOptions.find((item) => item.code === code);
+            form.setValue("amount", category?.thirdTimeAmount ?? "", {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
             const controllerId = code ? defaultCategoryCollaboratorId(collaborators, code) : null;
             form.setValue("controllerId", controllerId ?? "", { shouldDirty: true, shouldValidate: true });
           }}

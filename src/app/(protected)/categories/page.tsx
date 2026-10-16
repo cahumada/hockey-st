@@ -1,7 +1,10 @@
 import { Suspense } from "react";
+import Link from "next/link";
+import { Clock3 } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireAccess } from "@/lib/require-access";
 import { statusMarkClass, StatusBadge } from "@/components/status-badge";
+import { buttonVariants } from "@/components/ui/button";
 import { formatCategoryLabel, sortCategories } from "@/lib/roster";
 import { cn } from "cn";
 
@@ -17,14 +20,23 @@ async function CategoriesPanel() {
 
   return (
     <div className="flex flex-col gap-4">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Categorías</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {categories.length === 1
-            ? "1 categoría de la actividad."
-            : `${categories.length} categorías de la actividad.`}
-        </p>
-      </header>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight">Categorías</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {categories.length === 1
+              ? "1 categoría de la actividad."
+              : `${categories.length} categorías de la actividad.`}
+          </p>
+        </header>
+        <Link
+          href="/categories/third-time"
+          className={cn(buttonVariants({ variant: "outline" }), "min-h-11 gap-2 px-4")}
+        >
+          <Clock3 aria-hidden="true" />
+          Monto del 3er tiempo
+        </Link>
+      </div>
       {categories.length === 0 ? (
         <p>No hay categorías cargadas.</p>
       ) : (
