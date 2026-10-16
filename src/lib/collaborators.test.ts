@@ -5,7 +5,12 @@ import {
   parseCollaboratorAssignment,
   parseCollaboratorLink,
   parseCollaboratorProfile,
+  thirdTimeCollaboratorKinds,
 } from "./collaborators.ts";
+
+test("3er Tiempo only assigns coordinators and third-time collaborators", () => {
+  assert.deepEqual(thirdTimeCollaboratorKinds, ["COORDINATOR", "THIRD_TIME"]);
+});
 
 test("a new collaborator takes the next legacy id", () => {
   assert.equal(nextCollaboratorLegacyId(null), 1);
@@ -66,6 +71,8 @@ test("profile keeps a trimmed name, kind, empty category, and clears the date wh
     parseCollaboratorProfile(
       {
         displayName: "  Anabella  ",
+        givenName: "  Ana  ",
+        familyName: "  Gómez  ",
         kind: "COORDINATOR",
         categoryCode: "",
         status: "ACTIVE",
@@ -76,6 +83,8 @@ test("profile keeps a trimmed name, kind, empty category, and clears the date wh
     {
       ok: true,
       displayName: "Anabella",
+      givenName: "Ana",
+      familyName: "Gómez",
       kind: "COORDINATOR",
       categoryCode: null,
       status: "ACTIVE",
@@ -88,7 +97,9 @@ test("profile keeps an inactive collaborator with a calendar date", () => {
   assert.deepEqual(
     parseCollaboratorProfile(
       {
-        displayName: "Rosana Lavagnino",
+        displayName: "Rosana",
+        givenName: "Rosana",
+        familyName: "Lavagnino",
         kind: "THIRD_TIME",
         categoryCode: "7ma",
         status: "INACTIVE",
@@ -98,7 +109,9 @@ test("profile keeps an inactive collaborator with a calendar date", () => {
     ),
     {
       ok: true,
-      displayName: "Rosana Lavagnino",
+      displayName: "Rosana",
+      givenName: "Rosana",
+      familyName: "Lavagnino",
       kind: "THIRD_TIME",
       categoryCode: "7ma",
       status: "INACTIVE",
@@ -111,6 +124,8 @@ test("profile rejects a blank name, an unknown status, and an inactive row witho
   const blank = parseCollaboratorProfile(
     {
       displayName: "   ",
+      givenName: "   ",
+      familyName: "   ",
       kind: "SPONSOR",
       categoryCode: "",
       status: "ACTIVE",
@@ -120,12 +135,33 @@ test("profile rejects a blank name, an unknown status, and an inactive row witho
   );
   assert.equal(blank.ok, false);
   if (!blank.ok) {
-    assert.equal(blank.message, "Escribí el nombre.");
+    assert.equal(blank.message, "Ingresá el alias de este colaborador.");
+  }
+
+  const namesOptional = parseCollaboratorProfile(
+    {
+      displayName: "Malena",
+      givenName: "",
+      familyName: " ",
+      kind: "SPECIAL_CASH",
+      categoryCode: "",
+      status: "ACTIVE",
+      statusChangedOn: "",
+    },
+    [],
+  );
+  assert.equal(namesOptional.ok, true);
+  if (namesOptional.ok) {
+    assert.equal(namesOptional.displayName, "Malena");
+    assert.equal(namesOptional.givenName, null);
+    assert.equal(namesOptional.familyName, null);
   }
 
   const status = parseCollaboratorProfile(
     {
-      displayName: "Malena",
+      displayName: "Malena Ruiz",
+      givenName: "Malena",
+      familyName: "Ruiz",
       kind: "SPECIAL_CASH",
       categoryCode: "",
       status: "baja",
@@ -141,6 +177,8 @@ test("profile rejects a blank name, an unknown status, and an inactive row witho
   const missingDate = parseCollaboratorProfile(
     {
       displayName: "Pablo Bellemans",
+      givenName: "Pablo",
+      familyName: "Bellemans",
       kind: "SPONSOR",
       categoryCode: "",
       status: "INACTIVE",

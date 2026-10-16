@@ -16,30 +16,45 @@ enum Role {
   VISITOR
 }
 
+// Every table records who created the row, who last changed it, and when.
+// The user ids stay null when the write has no signed-in user (seed, import, sign-in).
+
 model Account {
-  id                String  @id @default(cuid())
+  id                String    @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?   @db.Text
+  access_token      String?   @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?   @db.Text
   session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  createdById       String?
+  updatedById       String?
+  createdBy         User?     @relation("AccountCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy         User?     @relation("AccountUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdById  String?
+  updatedById  String?
+  createdBy    User?     @relation("SessionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?     @relation("SessionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 model User {
@@ -55,12 +70,50 @@ model User {
   playerProfile       Player?
   collaboratorProfile Collaborator?
   parentLinks         ParentPlayer[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  createdById         String?
+  updatedById         String?
+  createdBy           User?          @relation("UserCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy           User?          @relation("UserUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  usersCreated        User[]         @relation("UserCreatedBy")
+  usersUpdated        User[]         @relation("UserUpdatedBy")
+  accountsCreated     Account[]      @relation("AccountCreatedBy")
+  accountsUpdated     Account[]      @relation("AccountUpdatedBy")
+  sessionsCreated     Session[]      @relation("SessionCreatedBy")
+  sessionsUpdated     Session[]      @relation("SessionUpdatedBy")
+  tokensCreated       VerificationToken[] @relation("VerificationTokenCreatedBy")
+  tokensUpdated       VerificationToken[] @relation("VerificationTokenUpdatedBy")
+  categoriesCreated   Category[]     @relation("CategoryCreatedBy")
+  categoriesUpdated   Category[]     @relation("CategoryUpdatedBy")
+  collaboratorsCreated Collaborator[] @relation("CollaboratorCreatedBy")
+  collaboratorsUpdated Collaborator[] @relation("CollaboratorUpdatedBy")
+  playersCreated      Player[]       @relation("PlayerCreatedBy")
+  playersUpdated      Player[]       @relation("PlayerUpdatedBy")
+  parentLinksCreated  ParentPlayer[] @relation("ParentPlayerCreatedBy")
+  parentLinksUpdated  ParentPlayer[] @relation("ParentPlayerUpdatedBy")
+  expenseTypesCreated ExpenseType[]  @relation("ExpenseTypeCreatedBy")
+  expenseTypesUpdated ExpenseType[]  @relation("ExpenseTypeUpdatedBy")
+  incomeTypesCreated  IncomeType[]   @relation("IncomeTypeCreatedBy")
+  incomeTypesUpdated  IncomeType[]   @relation("IncomeTypeUpdatedBy")
+  channelsCreated     ThirdTimeChannel[] @relation("ThirdTimeChannelCreatedBy")
+  channelsUpdated     ThirdTimeChannel[] @relation("ThirdTimeChannelUpdatedBy")
+  expensesCreated     Expense[]      @relation("ExpenseCreatedBy")
+  expensesUpdated     Expense[]      @relation("ExpenseUpdatedBy")
+  feesCreated         ThirdTimeFee[] @relation("ThirdTimeFeeCreatedBy")
+  feesUpdated         ThirdTimeFee[] @relation("ThirdTimeFeeUpdatedBy")
 }
 
 model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
+  identifier  String
+  token       String
+  expires     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+  updatedById String?
+  createdBy   User?    @relation("VerificationTokenCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?    @relation("VerificationTokenUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@unique([identifier, token])
 }
@@ -71,6 +124,13 @@ model Category {
   active        Boolean        @default(true)
   players       Player[]
   collaborators Collaborator[]
+  thirdTimeFees ThirdTimeFee[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  createdById   String?
+  updatedById   String?
+  createdBy     User?          @relation("CategoryCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy     User?          @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 enum CollaboratorKind {
@@ -88,8 +148,10 @@ enum CollaboratorStatus {
 model Collaborator {
   id              String             @id @default(cuid())
   legacyId        Int                @unique
-  // Sheet column Descripción, stored exactly. The sheet has no email.
+  // Shown name. Independent from the optional given and family names, same as Player.
   displayName     String
+  givenName       String?
+  familyName      String?
   kind            CollaboratorKind
   categoryCode    String?
   category        Category?          @relation(fields: [categoryCode], references: [code], onDelete: Restrict)
@@ -98,8 +160,13 @@ model Collaborator {
   userId          String?            @unique
   user            User?              @relation(fields: [userId], references: [id], onDelete: SetNull)
   expenses        Expense[]
+  thirdTimeFees   ThirdTimeFee[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
+  createdById     String?
+  updatedById     String?
+  createdBy       User?              @relation("CollaboratorCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy       User?              @relation("CollaboratorUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 enum RosterStatus {
@@ -114,31 +181,36 @@ enum RosterInactiveReason {
 }
 
 model Player {
-  id              String         @id @default(cuid())
-  legacyId        Int            @unique
+  id               String                @id @default(cuid())
+  legacyId         Int                   @unique
   // Sheet column "Nombre y Apellido", stored exactly. The file does not split names.
-  displayName     String
-  givenName       String?
-  familyName      String?
-  categoryCode    String
-  category        Category       @relation(fields: [categoryCode], references: [code])
-  rosterStatus    RosterStatus
+  displayName      String
+  givenName        String?
+  familyName       String?
+  categoryCode     String
+  category         Category              @relation(fields: [categoryCode], references: [code])
+  rosterStatus     RosterStatus
   // Null while an imported Baja has no reason yet.
-  statusReason    RosterInactiveReason?
-  statusChangedOn DateTime?      @db.Date
-  userId          String?        @unique
-  user            User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  statusReason     RosterInactiveReason?
+  statusChangedOn  DateTime?             @db.Date
+  userId           String?               @unique
+  user             User?                 @relation(fields: [userId], references: [id], onDelete: SetNull)
   // Private Vercel Blob pathname. Null until a roster manager uploads a photo.
-  avatarPath      String?
-  birthDate       DateTime?      @db.Date
+  avatarPath       String?
+  birthDate        DateTime?             @db.Date
   membershipNumber String?
-  jerseyNumber    Int?
+  jerseyNumber     Int?
   // AES-256-GCM ciphertext for the national id. Never expose decrypted values to the client.
-  dniCiphertext   String?        @db.Text
-  joinedOn        DateTime?      @db.Date
-  parents         ParentPlayer[]
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  dniCiphertext    String?               @db.Text
+  joinedOn         DateTime?             @db.Date
+  parents          ParentPlayer[]
+  thirdTimeFees    ThirdTimeFee[]
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  createdById      String?
+  updatedById      String?
+  createdBy        User?                 @relation("PlayerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy        User?                 @relation("PlayerUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 model ParentPlayer {
@@ -147,6 +219,11 @@ model ParentPlayer {
   parent       User     @relation(fields: [parentUserId], references: [id], onDelete: Cascade)
   player       Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdById  String?
+  updatedById  String?
+  createdBy    User?    @relation("ParentPlayerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy    User?    @relation("ParentPlayerUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@id([parentUserId, playerId])
 }
@@ -164,6 +241,10 @@ model ExpenseType {
   expenses    Expense[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  createdById String?
+  updatedById String?
+  createdBy   User?         @relation("ExpenseTypeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?         @relation("ExpenseTypeUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 model IncomeType {
@@ -173,6 +254,23 @@ model IncomeType {
   status      CatalogStatus @default(ACTIVE)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  createdById String?
+  updatedById String?
+  createdBy   User?         @relation("IncomeTypeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?         @relation("IncomeTypeUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+}
+
+model ThirdTimeChannel {
+  id          String        @id @default(cuid())
+  legacyId    Int           @unique
+  description String        @unique
+  status      CatalogStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  createdById String?
+  updatedById String?
+  createdBy   User?         @relation("ThirdTimeChannelCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy   User?         @relation("ThirdTimeChannelUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 }
 
 model Expense {
@@ -192,9 +290,56 @@ model Expense {
   legacyDriveFileId  String?
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+  createdById        String?
+  updatedById        String?
+  createdBy          User?        @relation("ExpenseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy          User?        @relation("ExpenseUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
 
   @@index([spentOn])
   @@index([expenseTypeId])
   @@index([collaboratorId])
   @@index([legacyDriveFileId])
+}
+
+enum ThirdTimeFeeStatus {
+  PAID
+  PENDING
+  EXEMPT
+}
+
+model ThirdTimeFee {
+  id                 String             @id @default(cuid())
+  legacyRow          Int?               @unique
+  playerId           String
+  player             Player             @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  categoryCode       String
+  category           Category           @relation(fields: [categoryCode], references: [code], onDelete: Restrict)
+  amount             Decimal?           @db.Decimal(12, 2)
+  chargedOn          DateTime           @db.Date
+  paidOn             DateTime?          @db.Date
+  receiptReference   String?
+  channel            String?
+  status             ThirdTimeFeeStatus
+  controllerId       String
+  controller         Collaborator       @relation(fields: [controllerId], references: [id], onDelete: Restrict)
+  notes              String?
+  receiptPath        String?
+  receiptContentType String?
+  legacyDriveFileId  String?
+  // Logical delete. Lists skip these rows. updatedById is the user who deleted it.
+  deletedAt          DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  createdById        String?
+  updatedById        String?
+  createdBy          User?              @relation("ThirdTimeFeeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy          User?              @relation("ThirdTimeFeeUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([chargedOn])
+  @@index([playerId])
+  @@index([categoryCode])
+  @@index([controllerId])
+  @@index([status])
+  @@index([legacyDriveFileId])
+  @@index([deletedAt])
 }

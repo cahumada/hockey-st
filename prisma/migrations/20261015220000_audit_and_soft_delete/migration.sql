@@ -1,0 +1,101 @@
+-- Audit columns on every table, and a logical delete for 3er Tiempo fees.
+-- Existing rows keep a null actor. New timestamp columns start at this migration.
+
+ALTER TABLE "Account" ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Account" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Account" ALTER COLUMN "updatedAt" DROP DEFAULT;
+ALTER TABLE "Account" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Account" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "Session" ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Session" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Session" ALTER COLUMN "updatedAt" DROP DEFAULT;
+ALTER TABLE "Session" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Session" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "User" ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "User" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "User" ALTER COLUMN "updatedAt" DROP DEFAULT;
+ALTER TABLE "User" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "User" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "VerificationToken" ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "VerificationToken" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "VerificationToken" ALTER COLUMN "updatedAt" DROP DEFAULT;
+ALTER TABLE "VerificationToken" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "VerificationToken" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "Category" ADD COLUMN "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Category" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Category" ALTER COLUMN "updatedAt" DROP DEFAULT;
+ALTER TABLE "Category" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Category" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "Collaborator" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Collaborator" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "Player" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Player" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "ParentPlayer" ADD COLUMN "updatedAt" TIMESTAMP(3);
+UPDATE "ParentPlayer" SET "updatedAt" = "createdAt";
+ALTER TABLE "ParentPlayer" ALTER COLUMN "updatedAt" SET NOT NULL;
+ALTER TABLE "ParentPlayer" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "ParentPlayer" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "ExpenseType" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "ExpenseType" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "IncomeType" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "IncomeType" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "ThirdTimeChannel" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "ThirdTimeChannel" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "Expense" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "Expense" ADD COLUMN "updatedById" TEXT;
+
+ALTER TABLE "ThirdTimeFee" ADD COLUMN "deletedAt" TIMESTAMP(3);
+ALTER TABLE "ThirdTimeFee" ADD COLUMN "createdById" TEXT;
+ALTER TABLE "ThirdTimeFee" ADD COLUMN "updatedById" TEXT;
+
+CREATE INDEX "ThirdTimeFee_deletedAt_idx" ON "ThirdTimeFee"("deletedAt");
+
+ALTER TABLE "Account" ADD CONSTRAINT "Account_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Account" ADD CONSTRAINT "Account_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "Session" ADD CONSTRAINT "Session_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Session" ADD CONSTRAINT "Session_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "User" ADD CONSTRAINT "User_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "VerificationToken" ADD CONSTRAINT "VerificationToken_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "VerificationToken" ADD CONSTRAINT "VerificationToken_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "Category" ADD CONSTRAINT "Category_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Category" ADD CONSTRAINT "Category_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "Collaborator" ADD CONSTRAINT "Collaborator_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Collaborator" ADD CONSTRAINT "Collaborator_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "Player" ADD CONSTRAINT "Player_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Player" ADD CONSTRAINT "Player_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "ParentPlayer" ADD CONSTRAINT "ParentPlayer_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ParentPlayer" ADD CONSTRAINT "ParentPlayer_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "ExpenseType" ADD CONSTRAINT "ExpenseType_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ExpenseType" ADD CONSTRAINT "ExpenseType_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "IncomeType" ADD CONSTRAINT "IncomeType_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "IncomeType" ADD CONSTRAINT "IncomeType_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "ThirdTimeChannel" ADD CONSTRAINT "ThirdTimeChannel_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ThirdTimeChannel" ADD CONSTRAINT "ThirdTimeChannel_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Expense" ADD CONSTRAINT "Expense_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "ThirdTimeFee" ADD CONSTRAINT "ThirdTimeFee_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "ThirdTimeFee" ADD CONSTRAINT "ThirdTimeFee_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

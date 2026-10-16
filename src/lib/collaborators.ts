@@ -8,6 +8,8 @@ export const collaboratorKinds = [
   "SPECIAL_CASH",
 ] as const satisfies readonly CollaboratorKind[];
 
+export const thirdTimeCollaboratorKinds = ["COORDINATOR", "THIRD_TIME"] as const satisfies readonly CollaboratorKind[];
+
 export const collaboratorKindLabels: Record<CollaboratorKind, string> = {
   COORDINATOR: "Coordinador",
   THIRD_TIME: "3er Tiempo",
@@ -59,11 +61,25 @@ export function parseCollaboratorAssignment(
   return { ok: true, kind: kind as CollaboratorKind, categoryCode };
 }
 
-const DISPLAY_NAME_MAX = 120;
+const NAME_MAX = 80;
+
+export function splitCollaboratorName(displayName: string): {
+  givenName: string | null;
+  familyName: string | null;
+} {
+  const trimmed = displayName.trim().replace(/\s+/g, " ");
+  const space = trimmed.lastIndexOf(" ");
+  if (space === -1) {
+    return { givenName: trimmed.length === 0 ? null : trimmed, familyName: null };
+  }
+  return { givenName: trimmed.slice(0, space), familyName: trimmed.slice(space + 1) };
+}
 
 export function parseCollaboratorProfile(
   input: {
     displayName: string;
+    givenName: string;
+    familyName: string;
     kind: string;
     categoryCode: string;
     status: string;
@@ -74,6 +90,8 @@ export function parseCollaboratorProfile(
   | {
       ok: true;
       displayName: string;
+      givenName: string | null;
+      familyName: string | null;
       kind: CollaboratorKind;
       categoryCode: string | null;
       status: CollaboratorStatus;
@@ -82,10 +100,20 @@ export function parseCollaboratorProfile(
   | { ok: false; message: string } {
   const displayName = input.displayName.trim();
   if (displayName.length === 0) {
-    return { ok: false, message: "Escribí el nombre." };
+    return { ok: false, message: "Ingresá el alias de este colaborador." };
   }
-  if (displayName.length > DISPLAY_NAME_MAX) {
-    return { ok: false, message: `Usá ${DISPLAY_NAME_MAX} caracteres o menos.` };
+  if (displayName.length > NAME_MAX) {
+    return { ok: false, message: `Usá ${NAME_MAX} caracteres o menos.` };
+  }
+
+  const givenName = optionalName(input.givenName);
+  if (typeof givenName !== "string" && givenName !== null) {
+    return givenName;
+  }
+
+  const familyName = optionalName(input.familyName);
+  if (typeof familyName !== "string" && familyName !== null) {
+    return familyName;
   }
 
   const assignment = parseCollaboratorAssignment(input, allowedCategoryCodes);
@@ -101,6 +129,8 @@ export function parseCollaboratorProfile(
   if (status === "ACTIVE") {
     return {
       ok: true,
+      givenName,
+      familyName,
       displayName,
       kind: assignment.kind,
       categoryCode: assignment.categoryCode,
@@ -116,12 +146,25 @@ export function parseCollaboratorProfile(
 
   return {
     ok: true,
+    givenName,
+    familyName,
     displayName,
     kind: assignment.kind,
     categoryCode: assignment.categoryCode,
     status,
     statusChangedOn,
   };
+}
+
+function optionalName(value: string): string | null | { ok: false; message: string } {
+  const trimmed = value.trim();
+  if (trimmed.length === 0) {
+    return null;
+  }
+  if (trimmed.length > NAME_MAX) {
+    return { ok: false, message: `Usá ${NAME_MAX} caracteres o menos.` };
+  }
+  return trimmed;
 }
 
 function calendarDate(value: string): string | null {

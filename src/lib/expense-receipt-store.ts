@@ -3,8 +3,9 @@ import { del, get, put } from "@vercel/blob";
 export async function savePrivateReceipt(
   expenseId: string,
   file: File,
+  folder = "expenses",
 ): Promise<{ pathname: string; contentType: string }> {
-  const blob = await put(`expenses/${expenseId}/receipt.${extensionFor(file.type)}`, file, {
+  const blob = await put(`${folder}/${expenseId}/receipt.${extensionFor(file.type)}`, file, {
     access: "private",
     addRandomSuffix: true,
     contentType: file.type,

@@ -11,6 +11,8 @@ export type CollaboratorBrowseQuery = {
 
 export type CollaboratorBrowsePerson = {
   displayName: string;
+  givenName?: string | null;
+  familyName?: string | null;
   legacyId: number;
   kind: CollaboratorKind;
   categoryCode: string | null;
@@ -26,7 +28,8 @@ function matchesText(person: CollaboratorBrowsePerson, needle: string): boolean 
     return true;
   }
 
-  return fold(person.displayName).includes(needle) || String(person.legacyId).includes(needle);
+  const fields = [person.displayName, person.givenName, person.familyName];
+  return fields.some((field) => field && fold(field).includes(needle)) || String(person.legacyId).includes(needle);
 }
 
 function matchesStatus(person: CollaboratorBrowsePerson, status: CollaboratorBrowseStatus): boolean {

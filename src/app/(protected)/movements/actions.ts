@@ -15,7 +15,7 @@ import {
   type ExpenseFormValues,
   type ParsedExpense,
 } from "@/lib/expenses";
-import { requireAccess } from "@/lib/require-access";
+import { audited } from "@/lib/require-access";
 
 export type ExpenseActionState = {
   status: "idle" | "saved" | "error";
@@ -26,7 +26,10 @@ export type ExpenseActionState = {
 const movementsPath = "/movements";
 
 export async function createExpense(formData: FormData): Promise<ExpenseActionState> {
-  await requireAccess("register-movements");
+  return audited("register-movements", () => createExpenseRecord(formData));
+}
+
+async function createExpenseRecord(formData: FormData): Promise<ExpenseActionState> {
   const parsed = await parseExpenseForm(formData);
   if (!parsed.ok) return parsed.state;
 
@@ -63,7 +66,10 @@ export async function createExpense(formData: FormData): Promise<ExpenseActionSt
 }
 
 export async function updateExpense(formData: FormData): Promise<ExpenseActionState> {
-  await requireAccess("register-movements");
+  return audited("register-movements", () => updateExpenseRecord(formData));
+}
+
+async function updateExpenseRecord(formData: FormData): Promise<ExpenseActionState> {
   const id = String(formData.get("id") ?? "");
   const existing = await prisma.expense.findUnique({
     where: { id },

@@ -3,6 +3,7 @@ import { accessFor, type Capability, type Role } from "./access.ts";
 export type MenuIconName =
   | "dashboard"
   | "movements"
+  | "third-time"
   | "roles"
   | "players"
   | "categories"
@@ -11,7 +12,8 @@ export type MenuIconName =
   | "parent-report"
   | "maintenance"
   | "expense-types"
-  | "income-types";
+  | "income-types"
+  | "channels";
 
 type NavigationGroupMeta = {
   id: string;
@@ -36,6 +38,7 @@ const maintenanceGroup: NavigationGroupMeta = {
 export const capabilityLinks: CapabilityLink[] = [
   { capability: "club-dashboard", href: "/dashboard", label: "Panel", icon: "dashboard" },
   { capability: "register-movements", href: "/movements", label: "Gastos", icon: "movements" },
+  { capability: "register-movements", href: "/third-time", label: "3er Tiempo", icon: "third-time" },
   { capability: "assign-roles", href: "/roles", label: "Roles", icon: "roles" },
   { capability: "manage-roster", href: "/players", label: "Jugadoras", icon: "players" },
   { capability: "view-categories", href: "/categories", label: "Categorías", icon: "categories" },
@@ -57,6 +60,13 @@ export const capabilityLinks: CapabilityLink[] = [
     href: "/maintenance/income-types",
     label: "Tipos de ingreso",
     icon: "income-types",
+    group: maintenanceGroup,
+  },
+  {
+    capability: "manage-maintenance",
+    href: "/maintenance/channels",
+    label: "Tipos de canales",
+    icon: "channels",
     group: maintenanceGroup,
   },
   { capability: "club-report", href: "/reports/club", label: "Informe del club", icon: "club-report" },

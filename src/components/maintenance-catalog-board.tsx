@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, Trash2, X } from "lucide-react";
 import type { MaintenanceCatalogActionState } from "@/app/(protected)/maintenance/actions";
 import { statusMarkClass, StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
@@ -54,23 +54,36 @@ const entryStatusItems = [
 export function MaintenanceCatalogBoard({
   title,
   emptyLabel,
+  emptyFilterLabel = "No hay tipos con ese filtro.",
+  createButtonLabel = "Nuevo tipo",
   createTitle,
   createLabel,
+  noun = ["tipo", "tipos"],
   rows,
   createAction,
   updateAction,
+  removeAction,
+  removeTitle = "Quitar",
+  removeHint = "Se quita del listado.",
 }: {
   title: string;
   emptyLabel: string;
+  emptyFilterLabel?: string;
+  createButtonLabel?: string;
   createTitle: string;
   createLabel: string;
+  noun?: readonly [string, string];
   rows: readonly MaintenanceCatalogRow[];
   createAction: CatalogFormAction;
   updateAction: CatalogFormAction;
+  removeAction?: CatalogFormAction;
+  removeTitle?: string;
+  removeHint?: string;
 }) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState<CatalogBrowseStatus>("all");
   const [editor, setEditor] = useState<Editor>(null);
+  const [removing, setRemoving] = useState<MaintenanceCatalogRow | null>(null);
   const result = useMemo(
     () => browseMaintenanceCatalog(rows, { text, status }),
     [rows, text, status],
@@ -90,7 +103,7 @@ export function MaintenanceCatalogBoard({
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
           <p aria-live="polite" className="mt-1 text-sm text-muted-foreground">
-            {catalogSummary(result.totals)}
+            {catalogSummary(result.totals, noun)}
           </p>
         </div>
         <Button
@@ -98,7 +111,7 @@ export function MaintenanceCatalogBoard({
           className="min-h-11 shrink-0 px-4"
           onClick={() => setEditor({ mode: "create" })}
         >
-          Nuevo tipo
+          {createButtonLabel}
         </Button>
       </header>
       <div className="sticky top-0 z-20 -mx-4 border-b bg-background/95 px-4 py-3 backdrop-blur md:-mx-8 md:px-8">
@@ -141,7 +154,7 @@ export function MaintenanceCatalogBoard({
           <p>{emptyLabel}</p>
         ) : result.rows.length === 0 ? (
           <div className="flex flex-col items-start gap-3">
-            <p>No hay tipos con ese filtro.</p>
+            <p>{emptyFilterLabel}</p>
             <Button type="button" className="min-h-11 px-4" onClick={clearFilters}>
               Limpiar filtros
             </Button>
@@ -154,6 +167,7 @@ export function MaintenanceCatalogBoard({
                   <CatalogCard
                     row={row}
                     onEdit={() => setEditor({ mode: "edit", rowId: row.id })}
+                    onRemove={removeAction ? () => setRemoving(row) : undefined}
                   />
                 </li>
               ))}
@@ -196,6 +210,7 @@ export function MaintenanceCatalogBoard({
                         <RowActions
                           description={row.description}
                           onEdit={() => setEditor({ mode: "edit", rowId: row.id })}
+                          onRemove={removeAction ? () => setRemoving(row) : undefined}
                         />
                       </td>
                     </tr>
@@ -226,6 +241,15 @@ export function MaintenanceCatalogBoard({
           onClose={() => setEditor(null)}
         />
       ) : null}
+      {removing && removeAction ? (
+        <RemoveCatalogDialog
+          row={removing}
+          title={removeTitle}
+          hint={removeHint}
+          formAction={removeAction}
+          onClose={() => setRemoving(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -233,9 +257,11 @@ export function MaintenanceCatalogBoard({
 function CatalogCard({
   row,
   onEdit,
+  onRemove,
 }: {
   row: MaintenanceCatalogRow;
   onEdit: () => void;
+  onRemove?: () => void;
 }) {
   return (
     <article className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
@@ -254,7 +280,7 @@ function CatalogCard({
         <Fact label="Número" value={String(row.legacyId)} />
       </dl>
       <div className="mt-auto px-2 py-2">
-        <RowActions description={row.description} onEdit={onEdit} />
+        <RowActions description={row.description} onEdit={onEdit} onRemove={onRemove} />
       </div>
     </article>
   );
@@ -263,12 +289,26 @@ function CatalogCard({
 function RowActions({
   description,
   onEdit,
+  onRemove,
 }: {
   description: string;
   onEdit: () => void;
+  onRemove?: () => void;
 }) {
   return (
     <div role="group" aria-label={`Acciones de ${description}`} className="flex justify-end gap-1">
+      {onRemove ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={`Quitar ${description}`}
+          className="min-h-11 min-w-11"
+          onClick={onRemove}
+        >
+          <Trash2 aria-hidden="true" />
+        </Button>
+      ) : null}
       <Button
         type="button"
         variant="ghost"
@@ -280,6 +320,68 @@ function RowActions({
         <Pencil aria-hidden="true" />
       </Button>
     </div>
+  );
+}
+
+function RemoveCatalogDialog({
+  row,
+  title,
+  hint,
+  formAction,
+  onClose,
+}: {
+  row: MaintenanceCatalogRow;
+  title: string;
+  hint: string;
+  formAction: CatalogFormAction;
+  onClose: () => void;
+}) {
+  const formId = `catalog-remove-${row.id}`;
+  const [state, action, pending] = useActionState(formAction, idleAction);
+
+  useEffect(() => {
+    if (state.status === "saved") onClose();
+  }, [state.status, onClose]);
+
+  return (
+    <Modal
+      open
+      title={title}
+      description={row.description}
+      onClose={() => {
+        if (!pending) onClose();
+      }}
+      footer={
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 gap-2 px-4"
+            disabled={pending}
+            onClick={onClose}
+          >
+            <X aria-hidden="true" />
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            className="min-h-11 gap-2 px-4"
+            disabled={pending}
+            onClick={() => submitCatalogForm(formId)}
+          >
+            <Trash2 aria-hidden="true" />
+            {pending ? "Quitando…" : "Quitar"}
+          </Button>
+        </div>
+      }
+    >
+      <form id={formId} action={action} className="flex flex-col gap-3">
+        <input type="hidden" name="id" value={row.id} />
+        <p className="text-sm text-muted-foreground">{hint}</p>
+        <ActionNote state={state} />
+      </form>
+    </Modal>
   );
 }
 
@@ -474,9 +576,12 @@ function ActionNote({ state }: { state: MaintenanceCatalogActionState }) {
   );
 }
 
-function catalogSummary(totals: { shown: number; active: number; inactive: number }): string {
+function catalogSummary(
+  totals: { shown: number; active: number; inactive: number },
+  noun: readonly [string, string],
+): string {
   return [
-    countLabel(totals.shown, "tipo", "tipos"),
+    countLabel(totals.shown, noun[0], noun[1]),
     countLabel(totals.active, "activo", "activos"),
     countLabel(totals.inactive, "inactivo", "inactivos"),
   ].join(" · ");

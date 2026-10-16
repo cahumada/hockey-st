@@ -7,6 +7,7 @@ import {
   type Capability,
   type Role,
 } from "@/lib/access";
+import { runWithAuditUser } from "@/lib/audit";
 import { entryPathForUser } from "@/lib/authenticated-entry";
 
 export async function requireSession(): Promise<{
@@ -61,4 +62,9 @@ export async function requireAccess(capability: Capability): Promise<{
     role: session.role,
     scope: decision.scope,
   };
+}
+
+export async function audited<T>(capability: Capability, action: () => Promise<T>): Promise<T> {
+  const access = await requireAccess(capability);
+  return runWithAuditUser(access.userId, action);
 }
