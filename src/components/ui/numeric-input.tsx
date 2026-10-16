@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type InputHTMLAttributes } from "react";
+import { useEffect, useRef, useState, type InputHTMLAttributes } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "cn";
 import { formatNumericDisplay, formatNumericOnBlur, numericEditDraft, parseNumericDraft } from "@/lib/numeric-format";
@@ -32,18 +32,23 @@ export function NumericInput({
   min?: number;
   max?: number;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type" | "min" | "max">) {
-  const [text, setText] = useState(() =>
-    value === undefined
-      ? ""
-      : formatNumericDisplay(value, locale, minimumFractionDigits, maximumFractionDigits),
-  );
+  const [text, setText] = useState(() => displayText(value, locale, minimumFractionDigits, maximumFractionDigits));
   const textRef = useRef(text);
+  const focusedRef = useRef(false);
   const showSymbol = symbol.length > 0;
 
   function show(next: string) {
     textRef.current = next;
     setText(next);
   }
+
+  useEffect(() => {
+    if (focusedRef.current) return;
+    const next = displayText(value, locale, minimumFractionDigits, maximumFractionDigits);
+    if (next === textRef.current) return;
+    textRef.current = next;
+    setText(next);
+  }, [value, locale, minimumFractionDigits, maximumFractionDigits]);
 
   return (
     <span className="relative block">
@@ -63,6 +68,7 @@ export function NumericInput({
           className,
         )}
         onFocus={(event) => {
+          focusedRef.current = true;
           const parsed = parseNumericDraft(textRef.current);
           show(parsed === null ? textRef.current : numericEditDraft(parsed, maximumFractionDigits));
           onFocus?.(event);
@@ -77,6 +83,7 @@ export function NumericInput({
           });
           show(formatted.text);
           onChange(formatted.value);
+          focusedRef.current = false;
           onBlur?.(event);
         }}
         onChange={(event) => {
@@ -97,6 +104,16 @@ export function NumericInput({
       ) : null}
     </span>
   );
+}
+
+function displayText(
+  value: number | undefined,
+  locale: string,
+  minimumFractionDigits: number,
+  maximumFractionDigits: number,
+): string {
+  if (value === undefined) return "";
+  return formatNumericDisplay(value, locale, minimumFractionDigits, maximumFractionDigits);
 }
 
 function SymbolAdornment({
