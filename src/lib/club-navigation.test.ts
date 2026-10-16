@@ -2,6 +2,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { navigationForRole, type NavigationItem } from "./club-navigation.ts";
 
+const reportsGroup = {
+  type: "group" as const,
+  id: "reports",
+  label: "Reportes",
+  icon: "reports" as const,
+  children: [{ href: "/reports/third-time", label: "3er Tiempo", icon: "third-time" as const }],
+};
+
 const maintenanceGroup = {
   type: "group" as const,
   id: "maintenance",
@@ -40,6 +48,7 @@ test("administrator navigation keeps the flat links and inserts Mantenimiento af
     link("/categories", "Categorías", "categories"),
     link("/collaborators", "Colaboradores", "collaborators"),
     maintenanceGroup,
+    reportsGroup,
     link("/reports/club", "Informe del club", "club-report"),
     link("/reports/parents", "Informe de familias", "parent-report"),
   ]);
@@ -54,20 +63,30 @@ test("coordinator navigation includes Mantenimiento and keeps the other allowed 
     link("/categories", "Categorías", "categories"),
     link("/collaborators", "Colaboradores", "collaborators"),
     maintenanceGroup,
+    reportsGroup,
     link("/reports/club", "Informe del club", "club-report"),
     link("/reports/parents", "Informe de familias", "parent-report"),
   ]);
 });
 
-test("collaborator navigation has no maintenance group or catalog links", () => {
+test("collaborator navigation includes Reportes and excludes maintenance catalogs", () => {
   const navigation = navigationForRole("COLLABORATOR");
   const groups = navigation.filter((item) => item.type === "group");
-  assert.deepEqual(groups, []);
+  assert.deepEqual(groups, [reportsGroup]);
   const hrefs = navigation.flatMap((item) =>
     item.type === "link" ? [item.href] : item.children.map((child) => child.href),
   );
   assert.equal(hrefs.includes("/third-time"), true);
+  assert.equal(hrefs.includes("/reports/third-time"), true);
   assert.equal(hrefs.includes("/maintenance/expense-types"), false);
   assert.equal(hrefs.includes("/maintenance/income-types"), false);
   assert.equal(hrefs.includes("/maintenance/channels"), false);
+});
+
+test("parent navigation includes the family report and excludes the third-time category report", () => {
+  const hrefs = navigationForRole("PARENT").flatMap((item) =>
+    item.type === "link" ? [item.href] : item.children.map((child) => child.href),
+  );
+  assert.equal(hrefs.includes("/reports/parents"), true);
+  assert.equal(hrefs.includes("/reports/third-time"), false);
 });
